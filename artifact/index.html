@@ -14,90 +14,87 @@
     --chat-bg:#849ebf;
     --chat-header:#333333;
     --bubble-them:#ffffff;
+    --bubble-them-text:#141414;
     --bubble-me:#5ac463;
-    --bubble-text:#141414;
+    --bubble-me-text:#0b2b0b;
     --accent:#06c755;
     --statusbar:#000;
+    --chat-font: -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium","Noto Sans JP",sans-serif;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ color-scheme: dark; } }
   :root[data-theme="dark"]{ color-scheme: dark; }
 
+  /* ---- 着せ替えテーマ（#stageに data-app-theme で適用） ---- */
+  #stage[data-app-theme="dark"]{
+    --chat-bg:#111827; --chat-header:#0b0f17;
+    --bubble-them:#1f2937; --bubble-them-text:#e5e7eb;
+    --bubble-me:#7f1d1d; --bubble-me-text:#fecaca;
+    --accent:#dc2626; --list-header:#0a0a0d;
+  }
+  #stage[data-app-theme="retro"]{
+    --chat-bg:#0d150d; --chat-header:#0a100a;
+    --bubble-them:#16220f; --bubble-them-text:#9ef29e;
+    --bubble-me:#1d3318; --bubble-me-text:#c8ffb0;
+    --accent:#6fe36f; --list-bg:#0a0f0a; --list-header:#080c08;
+    --chat-font: "Courier New", ui-monospace, monospace;
+  }
+  #stage[data-app-theme="fancy"]{
+    --chat-bg:#ffe0ef; --chat-header:#ff9ec7;
+    --bubble-them:#ffffff; --bubble-them-text:#5a2340;
+    --bubble-me:#ff8fc7; --bubble-me-text:#4a0f2c;
+    --accent:#ff5fa8; --list-header:#1a1115;
+  }
+
   *{box-sizing:border-box;}
   body{
-    background:var(--bg-outer);
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium","Noto Sans JP",sans-serif;
-    display:flex; align-items:center; justify-content:center;
-    min-height:100%; padding-block:20px;
+    background:var(--bg-outer); margin:0; font-family:var(--chat-font);
+    display:flex; align-items:center; justify-content:center; min-height:100%; padding-block:20px;
   }
   #stage{
-    width:100%; max-width:430px;
-    height:min(900px, calc(100dvh - 40px));
+    width:100%; max-width:430px; height:min(900px, calc(100dvh - 40px));
     background:#000; border-radius:38px; overflow:hidden; position:relative;
     box-shadow:0 30px 80px var(--frame-shadow), 0 0 0 1px rgba(255,255,255,.05);
     display:flex; flex-direction:column;
   }
 
-  /* ---------- ステータスバー ---------- */
   .statusbar{
     background:var(--statusbar); color:#fff; flex-shrink:0;
     padding:calc(6px + env(safe-area-inset-top,0px)) 22px 4px;
     display:flex; align-items:center; justify-content:space-between;
-    font-size:13px; font-weight:600; font-variant-numeric:tabular-nums;
-    position:relative; z-index:50;
+    font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; position:relative; z-index:50;
   }
   .statusbar .sb-icons{ display:flex; align-items:center; gap:5px; }
 
   .app-body{ position:relative; flex:1; min-height:0; }
-  .screen{
-    position:absolute; inset:0; display:flex; flex-direction:column;
-    opacity:0; pointer-events:none; transition:opacity .2s ease;
-  }
+  .screen{ position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .screen.active{ opacity:1; pointer-events:auto; }
 
-  /* ---------- Chat List ---------- */
-  #list-screen{ background:var(--list-bg); }
-  .list-header{
-    background:var(--list-header); padding:16px 18px 10px;
-    border-bottom:1px solid var(--list-border);
-  }
-  .list-header-top{ display:flex; align-items:center; justify-content:space-between; }
-  .list-header-top h1{ color:var(--list-text); font-size:19px; font-weight:800; margin:0; }
-  .reset-btn{
-    background:transparent; border:1px solid rgba(255,255,255,.14); color:var(--list-sub);
-    font-size:11px; padding:6px 12px; border-radius:999px; cursor:pointer;
-    display:flex; align-items:center; gap:5px; font-family:inherit;
-  }
+  /* ============ ホーム画面（トーク/友だち/設定タブ） ============ */
+  #home-screen{ background:var(--list-bg); }
+  .home-content{ flex:1; min-height:0; position:relative; }
+  .tab-panel{ position:absolute; inset:0; display:none; flex-direction:column; }
+  .tab-panel.active{ display:flex; }
+
+  .panel-header{ background:var(--list-header); padding:16px 18px 10px; border-bottom:1px solid var(--list-border); flex-shrink:0; }
+  .panel-header-top{ display:flex; align-items:center; justify-content:space-between; }
+  .panel-header-top h1{ color:var(--list-text); font-size:19px; font-weight:800; margin:0; }
+  .reset-btn{ background:transparent; border:1px solid rgba(255,255,255,.14); color:var(--list-sub); font-size:11px; padding:6px 12px; border-radius:999px; cursor:pointer; display:flex; align-items:center; gap:5px; font-family:inherit; }
   .reset-btn:hover{ color:var(--list-text); border-color:rgba(255,255,255,.3); }
   .list-stats{ display:flex; gap:10px; margin-top:10px; }
-  .stat-pill{
-    flex:1; background:rgba(255,255,255,.05); border:1px solid var(--list-border);
-    border-radius:12px; padding:8px 10px;
-  }
+  .stat-pill{ flex:1; background:rgba(255,255,255,.05); border:1px solid var(--list-border); border-radius:12px; padding:8px 10px; }
   .stat-pill .num{ font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; }
   .stat-pill.success .num{ color:var(--success); }
   .stat-pill.bad .num{ color:var(--danger); }
   .stat-pill .lbl{ font-size:9.5px; color:var(--list-sub); margin-top:1px; }
 
-  .thread-list{ flex:1; overflow-y:auto; }
-  .thread{
-    width:100%; display:flex; align-items:center; gap:12px; padding:12px 18px;
-    background:transparent; border:none; border-bottom:1px solid var(--list-border);
-    text-align:left; cursor:pointer; font-family:inherit;
-  }
+  .thread-list, .friends-list, .settings-list{ flex:1; overflow-y:auto; }
+
+  .thread{ width:100%; display:flex; align-items:center; gap:12px; padding:12px 18px; background:transparent; border:none; border-bottom:1px solid var(--list-border); text-align:left; cursor:pointer; font-family:inherit; }
   .thread:hover{ background:rgba(255,255,255,.04); }
-  .thread-avatar{
-    width:46px;height:46px;border-radius:50%; flex-shrink:0; position:relative;
-    display:flex;align-items:center;justify-content:center;font-size:20px;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
-  }
+  .thread-avatar{ width:46px;height:46px;border-radius:50%; flex-shrink:0; position:relative; display:flex;align-items:center;justify-content:center;font-size:20px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
   .thread-avatar.locked{ filter:grayscale(1) brightness(.5); }
-  .unread-dot{
-    position:absolute; top:-2px; right:-2px; width:16px;height:16px;border-radius:50%;
-    background:var(--danger); color:#fff; font-size:9.5px; font-weight:700;
-    display:flex;align-items:center;justify-content:center; border:2px solid var(--list-bg);
-  }
+  .unread-dot{ position:absolute; top:-2px; right:-2px; width:16px;height:16px;border-radius:50%; background:var(--danger); color:#fff; font-size:9.5px; font-weight:700; display:flex;align-items:center;justify-content:center; border:2px solid var(--list-bg); }
   .thread-body{ flex:1; min-width:0; }
   .thread-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .thread-name{ color:var(--list-text); font-size:14.5px; font-weight:700; }
@@ -105,25 +102,59 @@
   .badge{ font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:999px; border:1px solid; flex-shrink:0; white-space:nowrap; }
   .badge.success{ color:var(--success); border-color:rgba(47,191,113,.4); background:rgba(47,191,113,.12); }
   .badge.bad{ color:var(--danger); border-color:rgba(229,72,77,.4); background:rgba(229,72,77,.12); }
-  .badge.progress{ color:var(--warn); border-color:rgba(242,177,52,.4); background:rgba(242,177,52,.12); }
   .badge.locked{ color:#5a5e66; border-color:rgba(255,255,255,.1); background:rgba(255,255,255,.03); }
 
-  .toast{
-    position:absolute; top:10px; left:50%; transform:translateX(-50%) translateY(-140%);
-    background:#161a20; color:#fff; padding:10px 16px; border-radius:12px;
-    font-size:12.5px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.4);
-    border:1px solid rgba(255,255,255,.1); z-index:60; white-space:nowrap;
-    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
-    display:flex; align-items:center; gap:8px;
+  /* ---- 友だちタブ ---- */
+  .genre-group-label{ padding:12px 18px 4px; color:var(--list-sub); font-size:11px; font-weight:800; letter-spacing:.05em; }
+
+  /* ---- 設定タブ ---- */
+  .settings-list{ padding:6px 0 20px; }
+  .settings-section{ padding:14px 18px 6px; }
+  .settings-section-title{ color:var(--list-sub); font-size:11px; font-weight:800; letter-spacing:.05em; margin-bottom:8px; }
+  .theme-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .theme-card{
+    border-radius:14px; padding:12px; cursor:pointer; border:2px solid transparent;
+    background:rgba(255,255,255,.04); text-align:left; font-family:inherit;
   }
-  .toast.show{ transform:translateX(-50%) translateY(0); }
+  .theme-card.selected{ border-color:var(--accent); background:rgba(255,255,255,.08); }
+  .theme-swatch{ height:34px; border-radius:8px; margin-bottom:8px; display:flex; overflow:hidden; }
+  .theme-swatch span{ flex:1; }
+  .theme-card-name{ color:var(--list-text); font-size:12px; font-weight:700; }
+  .theme-card-desc{ color:var(--list-sub); font-size:10px; margin-top:2px; }
+
+  .settings-row{ display:flex; align-items:center; justify-content:space-between; padding:11px 18px; border-bottom:1px solid var(--list-border); gap:12px; }
+  .settings-row-label{ color:var(--list-text); font-size:13px; font-weight:600; }
+  .settings-row-sub{ color:var(--list-sub); font-size:10.5px; margin-top:2px; }
+  .switch{ position:relative; width:42px; height:24px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch-track{ position:absolute; inset:0; background:rgba(255,255,255,.15); border-radius:999px; cursor:pointer; transition:background .2s; }
+  .switch input:checked + .switch-track{ background:var(--accent); }
+  .switch-thumb{ position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .2s; }
+  .switch input:checked ~ .switch-thumb{ transform:translateX(18px); }
+  .vol-slider{ width:100%; accent-color:var(--accent); }
+  .vol-row-value{ font-size:11px; color:var(--list-sub); font-variant-numeric:tabular-nums; min-width:34px; text-align:right; }
+
+  .difficulty-cards{ display:flex; flex-direction:column; gap:8px; }
+  .diff-card{ border-radius:14px; padding:12px 14px; cursor:pointer; border:2px solid transparent; background:rgba(255,255,255,.04); text-align:left; font-family:inherit; }
+  .diff-card.selected{ border-color:var(--accent); background:rgba(255,255,255,.08); }
+  .diff-card-top{ display:flex; align-items:center; justify-content:space-between; }
+  .diff-card-name{ color:var(--list-text); font-size:13px; font-weight:800; }
+  .diff-card-name.easy{ color:var(--success); }
+  .diff-card-name.hard{ color:var(--danger); }
+  .diff-card-desc{ color:var(--list-sub); font-size:10.5px; margin-top:4px; line-height:1.5; }
+
+  .danger-btn{ width:100%; padding:12px; border-radius:12px; border:1px solid rgba(229,72,77,.4); background:rgba(229,72,77,.1); color:var(--danger); font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .danger-btn:hover{ background:rgba(229,72,77,.18); }
+
+  /* ---- ボトムナビ ---- */
+  .bottom-nav{ display:flex; flex-shrink:0; background:var(--list-header); border-top:1px solid var(--list-border); padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px)); }
+  .nav-btn{ flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0; color:#5a5e66; cursor:pointer; font-family:inherit; }
+  .nav-btn.active{ color:var(--accent); }
+  .nav-btn span{ font-size:10px; font-weight:700; }
 
   /* ---------- Chat Room ---------- */
-  #chat-screen{ background:var(--chat-bg); }
-  .chat-header{
-    background:var(--chat-header); color:#fff; padding:9px 10px; display:flex; align-items:center; gap:9px;
-    flex-shrink:0; position:relative; z-index:5;
-  }
+  #chat-screen{ background:var(--chat-bg); font-family:var(--chat-font); }
+  .chat-header{ background:var(--chat-header); color:#fff; padding:9px 10px; display:flex; align-items:center; gap:9px; flex-shrink:0; position:relative; z-index:5; }
   .icon-btn{ background:transparent;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px; opacity:.9; }
   .icon-btn:hover{ opacity:1; }
   .chat-header-avatar{ width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
@@ -133,43 +164,31 @@
   .chat-header-status.typing{ color:#8fe05a; }
   .chat-header-status.offline{ color:var(--danger); }
   .chat-header-status.waiting{ color:var(--warn); }
-  .fast-toggle{
-    display:flex; align-items:center; gap:4px; background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.15); border-radius:999px; padding:5px 9px;
-    font-size:10px; font-weight:700; cursor:pointer; color:#c7c7c7; flex-shrink:0;
-  }
+  .fast-toggle{ display:flex; align-items:center; gap:4px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:999px; padding:5px 9px; font-size:10px; font-weight:700; cursor:pointer; color:#c7c7c7; flex-shrink:0; }
   .fast-toggle.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .fast-toggle[disabled]{ opacity:.35; cursor:not-allowed; }
+  .diff-chip{ font-size:9px; font-weight:800; padding:4px 8px; border-radius:999px; flex-shrink:0; }
+  .diff-chip.easy{ background:rgba(47,191,113,.18); color:var(--success); }
+  .diff-chip.normal{ background:rgba(242,177,52,.18); color:var(--warn); }
+  .diff-chip.hard{ background:rgba(229,72,77,.22); color:var(--danger); }
 
   .timeline{ flex:1; overflow-y:auto; padding:12px 0 6px; position:relative; z-index:1; }
 
   .msg-row{ display:flex; padding:0 10px; margin:5px 0; }
   .msg-row.them{ justify-content:flex-start; }
   .msg-row.me{ justify-content:flex-end; }
-  .msg-avatar{
-    width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;
-    flex-shrink:0; margin-right:6px; align-self:flex-end; box-shadow: 0 1px 3px rgba(0,0,0,.25);
-  }
+  .msg-avatar{ width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px; flex-shrink:0; margin-right:6px; align-self:flex-end; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
   .msg-wrap{ display:flex; align-items:flex-end; gap:5px; max-width:75%; }
   .msg-row.me .msg-wrap{ flex-direction:row-reverse; }
-  .bubble{
-    position:relative; padding:8px 12px; border-radius:16px; font-size:13.5px; line-height:1.45;
-    white-space:pre-wrap; word-break:break-word; box-shadow:0 1px 2px rgba(0,0,0,.15);
-  }
-  .msg-row.them .bubble{ background:var(--bubble-them); color:var(--bubble-text); border-top-left-radius:3px; }
-  .msg-row.me .bubble{ background:var(--bubble-me); color:#0b2b0b; border-top-right-radius:3px; }
-  .msg-row.them .bubble::before{
-    content:''; position:absolute; top:0; left:-6px; width:10px; height:10px;
-    background:var(--bubble-them); clip-path:polygon(100% 0, 100% 100%, 0 0);
-  }
-  .msg-row.me .bubble::before{
-    content:''; position:absolute; top:0; right:-6px; width:10px; height:10px;
-    background:var(--bubble-me); clip-path:polygon(0 0, 100% 0, 0 100%);
-  }
-  .msg-meta{ display:flex; flex-direction:column; font-size:9.5px; color:rgba(20,20,20,.6); flex-shrink:0; line-height:1.5; }
+  .bubble{ position:relative; padding:8px 12px; border-radius:16px; font-size:13.5px; line-height:1.45; white-space:pre-wrap; word-break:break-word; box-shadow:0 1px 2px rgba(0,0,0,.15); }
+  .msg-row.them .bubble{ background:var(--bubble-them); color:var(--bubble-them-text); border-top-left-radius:3px; }
+  .msg-row.me .bubble{ background:var(--bubble-me); color:var(--bubble-me-text); border-top-right-radius:3px; }
+  .msg-row.them .bubble::before{ content:''; position:absolute; top:0; left:-6px; width:10px; height:10px; background:var(--bubble-them); clip-path:polygon(100% 0, 100% 100%, 0 0); }
+  .msg-row.me .bubble::before{ content:''; position:absolute; top:0; right:-6px; width:10px; height:10px; background:var(--bubble-me); clip-path:polygon(0 0, 100% 0, 0 100%); }
+  .msg-meta{ display:flex; flex-direction:column; font-size:9.5px; color:rgba(120,120,120,.9); flex-shrink:0; line-height:1.5; }
   .msg-row.them .msg-meta{ align-items:flex-start; }
   .msg-row.me .msg-meta{ align-items:flex-end; }
-  .msg-meta .read-label{ color:rgba(20,20,20,.45); }
-  .msg-meta .read-label.is-read{ color:rgba(20,20,20,.6); font-weight:700; }
+  .msg-meta .read-label.is-read{ font-weight:700; color:var(--accent); }
 
   .sys-row{ display:flex; justify-content:center; padding:9px 24px; }
   .sys-inner{ display:flex; flex-direction:column; align-items:center; gap:7px; max-width:88%; }
@@ -182,55 +201,52 @@
   .glitch{ position:relative; display:inline-block; color:#ff3b3b; text-shadow:2px 0 #00e5ff, -2px 0 #ff00c8; animation: glitchJitter .13s infinite steps(2); }
 
   .typing-row{ display:flex; padding:0 10px; margin:5px 0; align-items:flex-end; }
-  .typing-bubble{ background:#fff; border-radius:16px; border-top-left-radius:3px; padding:10px 14px; display:flex; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,.15); }
-  .typing-dot{ width:6px;height:6px;border-radius:50%; background:#9a9a9a; animation:bounceDot 1.2s infinite ease-in-out; }
+  .typing-bubble{ background:var(--bubble-them); border-radius:16px; border-top-left-radius:3px; padding:10px 14px; display:flex; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,.15); }
+  .typing-dot{ width:6px;height:6px;border-radius:50%; background:currentColor; color:var(--bubble-them-text); opacity:.5; animation:bounceDot 1.2s infinite ease-in-out; }
   .typing-dot:nth-child(2){ animation-delay:.15s; }
   .typing-dot:nth-child(3){ animation-delay:.3s; }
 
-  /* ---------- 潜伏タイマー ---------- */
   .action-timer-row{ display:flex; justify-content:center; padding:14px 22px; }
-  .action-timer{
-    width:100%; max-width:280px; background:rgba(10,10,14,.72); border:1px solid rgba(255,80,80,.35);
-    border-radius:16px; padding:14px 16px; backdrop-filter:blur(2px);
-  }
+  .action-timer{ width:100%; max-width:280px; background:rgba(10,10,14,.72); border:1px solid rgba(255,80,80,.35); border-radius:16px; padding:14px 16px; backdrop-filter:blur(2px); }
   .at-label{ color:#ff8f8f; font-size:11.5px; font-weight:700; text-align:center; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px; }
   .at-label .dot{ width:6px;height:6px;border-radius:50%; background:#ff4d4d; animation:pulseDot 1s infinite; }
   .at-bar-track{ height:6px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden; }
   .at-bar-fill{ height:100%; background:linear-gradient(90deg,#ff4d4d,#ff8f4d); border-radius:999px; transition:width .1s linear; }
   .at-count{ text-align:center; color:#fff; font-size:19px; font-weight:800; margin-top:8px; font-variant-numeric:tabular-nums; }
 
-  /* ---------- 入力バー（装飾） ---------- */
-  .input-bar{
-    flex-shrink:0; background:#f1f1f1; border-top:1px solid rgba(0,0,0,.08);
-    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px)); display:flex; align-items:center; gap:7px;
-    position:relative; z-index:2;
-  }
+  .input-bar{ flex-shrink:0; background:#f1f1f1; border-top:1px solid rgba(0,0,0,.08); padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px)); display:flex; align-items:center; gap:7px; position:relative; z-index:2; }
   .input-bar .ib-icon{ width:26px;height:26px; flex-shrink:0; display:flex;align-items:center;justify-content:center; color:#8b8f96; }
-  .input-bar .ib-field{
-    flex:1; background:#fff; border-radius:18px; padding:8px 14px; font-size:12.5px; color:#a8adb5;
-    border:1px solid rgba(0,0,0,.06);
-  }
+  .input-bar .ib-field{ flex:1; background:#fff; border-radius:18px; padding:8px 14px; font-size:12.5px; color:#a8adb5; border:1px solid rgba(0,0,0,.06); }
 
-  /* ---------- 選択肢（入力エリアの上にオーバーレイ） ---------- */
-  .choices{
-    position:absolute; left:0; right:0; bottom:0; z-index:3;
-    background:#eef1f4; border-top:1px solid rgba(0,0,0,.08);
-    padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));
-    display:flex; flex-direction:column; gap:8px;
-    transform:translateY(100%); transition:transform .32s cubic-bezier(.22,1,.36,1);
-  }
+  .choices{ position:absolute; left:0; right:0; bottom:0; z-index:3; background:#eef1f4; border-top:1px solid rgba(0,0,0,.08); padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:8px; transform:translateY(100%); transition:transform .32s cubic-bezier(.22,1,.36,1); }
   .choices.show{ transform:translateY(0); }
-  .choice-btn{
-    width:100%; text-align:left; padding:12px 14px; border-radius:14px; background:#fff;
-    border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 6px rgba(0,0,0,.08);
-    font-size:13px; color:#1a1a1a; font-weight:600; cursor:pointer; font-family:inherit;
-    transition:transform .1s ease, background .15s ease;
-  }
+  .choice-timer{ display:flex; align-items:center; gap:8px; padding:2px 2px 4px; }
+  .choice-timer-label{ font-size:10.5px; color:var(--danger); font-weight:800; flex-shrink:0; }
+  .choice-timer-track{ flex:1; height:5px; border-radius:999px; background:rgba(0,0,0,.1); overflow:hidden; }
+  .choice-timer-fill{ height:100%; background:var(--danger); border-radius:999px; transition:width .1s linear; }
+  .choice-btn{ width:100%; text-align:left; padding:12px 14px; border-radius:14px; background:#fff; border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 6px rgba(0,0,0,.08); font-size:13px; color:#1a1a1a; font-weight:600; cursor:pointer; font-family:inherit; transition:transform .1s ease, background .15s ease; display:flex; align-items:center; gap:8px; }
   .choice-btn:hover{ background:#fafafa; }
   .choice-btn:active{ transform:scale(.98); }
+  .risk-hint{ font-size:12px; flex-shrink:0; opacity:.6; }
 
   .call-flash{ position:absolute; inset:0; z-index:30; background:#000; display:flex; align-items:center; justify-content:center; animation: flashRed .5s ease-in-out 2; }
   .call-flash span{ color:var(--danger); font-family:ui-monospace,monospace; font-size:12px; letter-spacing:.08em; }
+
+  .noise-overlay{ position:absolute; inset:0; z-index:2; pointer-events:none; opacity:0; mix-blend-mode:overlay; }
+  #chat-screen.hard-mode .noise-overlay{ opacity:.5; animation: noiseShift .3s steps(2) infinite; background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px); }
+  @keyframes noiseShift{ 0%{ transform:translateY(0);} 100%{ transform:translateY(3px);} }
+
+  #warn-modal{ position:absolute; inset:0; z-index:45; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,.75); }
+  #warn-modal.show{ display:flex; }
+  .warn-card{ width:100%; max-width:300px; border-radius:18px; padding:22px 20px; text-align:center; background:#1a1215; border:1px solid rgba(242,177,52,.4); }
+  .warn-card .wc-icon{ font-size:32px; margin-bottom:8px; }
+  .warn-card .wc-title{ color:var(--warn); font-size:15px; font-weight:800; margin-bottom:8px; }
+  .warn-card .wc-desc{ color:#c9ccd1; font-size:12px; line-height:1.6; margin-bottom:16px; }
+  .warn-actions{ display:flex; flex-direction:column; gap:8px; }
+  .warn-btn{ width:100%; padding:11px; border-radius:999px; border:none; cursor:pointer; font-size:12.5px; font-weight:700; font-family:inherit; }
+  .warn-btn.cancel{ background:rgba(255,255,255,.1); color:#fff; }
+  .warn-btn.proceed{ background:var(--danger); color:#fff; }
 
   /* ---------- Result Modal ---------- */
   #result-modal{ position:absolute; inset:0; z-index:40; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,.82); }
@@ -252,6 +268,9 @@
   .result-btn.back{ background:var(--accent); color:#fff; }
   .result-btn.back:hover{ filter:brightness(1.08); }
 
+  .toast{ position:absolute; top:10px; left:50%; transform:translateX(-50%) translateY(-140%); background:#161a20; color:#fff; padding:10px 16px; border-radius:12px; font-size:12.5px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.1); z-index:60; white-space:nowrap; transition:transform .35s cubic-bezier(.34,1.56,.64,1); display:flex; align-items:center; gap:8px; }
+  .toast.show{ transform:translateX(-50%) translateY(0); }
+
   @keyframes shake{ 0%,100%{transform:translate(0,0);} 10%{transform:translate(-2px,1px);} 20%{transform:translate(2px,-1px);} 30%{transform:translate(-3px,0);} 40%{transform:translate(3px,1px);} 50%{transform:translate(-1px,-2px);} 60%{transform:translate(1px,2px);} 70%{transform:translate(-2px,-1px);} 80%{transform:translate(2px,1px);} 90%{transform:translate(-1px,0);} }
   @keyframes shakeHard{ 0%,100%{transform:translate(0,0);} 25%{transform:translate(-4px,2px);} 50%{transform:translate(4px,-2px);} 75%{transform:translate(-3px,-3px);} }
   .fx-shake{ animation:shake .4s ease-in-out; }
@@ -264,7 +283,7 @@
   @keyframes pulseDot{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
 
   @media (prefers-reduced-motion: reduce){
-    .fx-shake,.fx-shake-hard,.fx-flash,.eerie-frame,.glitch,.typing-dot,.at-label .dot{ animation:none !important; }
+    .fx-shake,.fx-shake-hard,.fx-flash,.eerie-frame,.glitch,.typing-dot,.at-label .dot,.noise-overlay{ animation:none !important; }
   }
 </style>
 
@@ -279,22 +298,49 @@
   </div>
 
   <div class="app-body">
-    <!-- ============ Chat List ============ -->
-    <div id="list-screen" class="screen active">
-      <div class="list-header">
-        <div class="list-header-top">
-          <h1>トーク</h1>
-          <button class="reset-btn" id="reset-btn">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-            初期化
-          </button>
+    <!-- ============ ホーム（トーク／友だち／設定） ============ -->
+    <div id="home-screen" class="screen active">
+      <div class="home-content">
+
+        <!-- トーク -->
+        <div class="tab-panel active" id="panel-chats">
+          <div class="panel-header">
+            <div class="panel-header-top"><h1>トーク</h1></div>
+            <div class="list-stats">
+              <div class="stat-pill success"><div class="num" id="stat-cleared">0/30</div><div class="lbl">救出成功</div></div>
+              <div class="stat-pill bad"><div class="num" id="stat-bad">0/30</div><div class="lbl">BAD END回収</div></div>
+            </div>
+          </div>
+          <div class="thread-list" id="thread-list"></div>
         </div>
-        <div class="list-stats">
-          <div class="stat-pill success"><div class="num" id="stat-cleared">0/30</div><div class="lbl">救出成功</div></div>
-          <div class="stat-pill bad"><div class="num" id="stat-bad">0/30</div><div class="lbl">BAD END回収</div></div>
+
+        <!-- 友だち -->
+        <div class="tab-panel" id="panel-friends">
+          <div class="panel-header"><div class="panel-header-top"><h1>友だち</h1></div></div>
+          <div class="friends-list" id="friends-list"></div>
         </div>
+
+        <!-- 設定 -->
+        <div class="tab-panel" id="panel-settings">
+          <div class="panel-header"><div class="panel-header-top"><h1>設定</h1></div></div>
+          <div class="settings-list" id="settings-list"></div>
+        </div>
+
       </div>
-      <div class="thread-list" id="thread-list"></div>
+      <div class="bottom-nav">
+        <button class="nav-btn active" data-tab="chats">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span>トーク</span>
+        </button>
+        <button class="nav-btn" data-tab="friends">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>友だち</span>
+        </button>
+        <button class="nav-btn" data-tab="settings">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>設定</span>
+        </button>
+      </div>
       <div id="toast-holder"></div>
     </div>
 
@@ -309,12 +355,14 @@
           <div class="chat-header-name" id="chat-name"></div>
           <div class="chat-header-status" id="chat-status">オンライン</div>
         </div>
+        <span class="diff-chip" id="diff-chip"></span>
         <button class="fast-toggle" id="fast-toggle">⏩ FAST</button>
         <button class="icon-btn" id="call-btn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         </button>
       </div>
       <div class="timeline" id="timeline"></div>
+      <div class="noise-overlay"></div>
       <div class="input-bar">
         <span class="ib-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></span>
         <div class="ib-field">メッセージを入力</div>
@@ -322,6 +370,19 @@
       </div>
       <div class="choices" id="choices"></div>
       <div id="call-flash-holder"></div>
+    </div>
+  </div>
+
+  <!-- 危険選択肢の確認（EASYのみ・初回のみ） -->
+  <div id="warn-modal">
+    <div class="warn-card">
+      <div class="wc-icon">⚠️</div>
+      <div class="wc-title">本当に選びますか？</div>
+      <div class="wc-desc">これは危険な選択肢かもしれません。EASYモードでは最初の1回だけ選び直せます。</div>
+      <div class="warn-actions">
+        <button class="warn-btn cancel" id="warn-cancel">選び直す</button>
+        <button class="warn-btn proceed" id="warn-proceed">それでも選ぶ</button>
+      </div>
     </div>
   </div>
 
@@ -350,25 +411,58 @@
   // ============================================================
   function tickClock(){
     const d = new Date();
-    document.getElementById('sb-time').textContent =
-      d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+    document.getElementById('sb-time').textContent = d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
   }
   tickClock(); setInterval(tickClock, 15000);
 
   // ============================================================
-  // 1. サウンドエンジン
+  // 1. 設定 (Settings) — localStorageに独立保存
+  // ============================================================
+  const SETTINGS_KEY = 'line-horror-settings-v1';
+  const THEMES = [
+    {id:'classic', name:'LINEクラシック', desc:'標準の水色グレー×グリーン', colors:['#849ebf','#5ac463']},
+    {id:'dark', name:'ダーク・ブラッド', desc:'漆黒×ブラッドレッド', colors:['#111827','#7f1d1d']},
+    {id:'retro', name:'レトロガラケー', desc:'緑がかったモノクロ液晶', colors:['#0d150d','#1d3318']},
+    {id:'fancy', name:'ファンシーピンク', desc:'可愛いのにホラーな狂気のギャップ', colors:['#ffe0ef','#ff8fc7']},
+  ];
+  const DIFFICULTIES = [
+    {id:'easy', name:'EASY（簡単）', desc:'潜伏タイマー半減・早送り常時可・危険選択肢にヒント表示、初回は選び直しOK。制限時間なし。'},
+    {id:'normal', name:'NORMAL（普通）', desc:'標準の潜伏時間・早送り利用可。ヒントなし、トラップ選択肢は即BADフラグ。'},
+    {id:'hard', name:'HARD（極限ホラー）', desc:'リアルタイム潜伏、早送り不可。選択肢出現から25秒以内に返信しないと「既読スルー」で即BAD。画面ノイズ激化。'},
+  ];
+
+  function defaultSettings(){
+    return { theme:'classic', masterVolume:0.7, seEnabled:true, horrorAudioEnabled:true, difficulty:'normal' };
+  }
+  function loadSettings(){
+    try{
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if(!raw) return defaultSettings();
+      return Object.assign(defaultSettings(), JSON.parse(raw));
+    }catch(e){ return defaultSettings(); }
+  }
+  function persistSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
+  let settings = loadSettings();
+
+  function applyTheme(){
+    document.getElementById('stage').setAttribute('data-app-theme', settings.theme);
+  }
+
+  // ============================================================
+  // 2. サウンドエンジン（音量・SE/環境音トグル対応）
   // ============================================================
   const SoundEngine = (function(){
     let ctx=null, master=null;
     function ensure(){
       if(!ctx){
         const AC = window.AudioContext || window.webkitAudioContext;
-        ctx = new AC(); master = ctx.createGain(); master.gain.value=.5; master.connect(ctx.destination);
+        ctx = new AC(); master = ctx.createGain(); master.gain.value = settings.masterVolume; master.connect(ctx.destination);
       }
       if(ctx.state==='suspended') ctx.resume();
       return ctx;
     }
     function unlock(){ try{ ensure(); }catch(e){} }
+    function setVolume(v){ if(master) master.gain.value = v; }
     function tone(freq,start,dur,opt){
       opt=opt||{};
       const c=ensure(); const osc=c.createOscillator(); const gain=c.createGain();
@@ -384,26 +478,27 @@
       return buf;
     }
     return {
-      unlock,
-      receive(){ const c=ensure(),now=c.currentTime; tone(880,now,.11,{gain:.26,attack:.004}); tone(1760,now+.08,.14,{gain:.22,attack:.004}); },
-      send(){ const c=ensure(),now=c.currentTime; tone(700,now,.07,{freqEnd:900,gain:.17,attack:.004}); },
-      readChime(){ const c=ensure(),now=c.currentTime; tone(1500,now,.09,{gain:.1,attack:.006}); },
-      heartbeat(){ const c=ensure(),now=c.currentTime; tone(50,now,.16,{gain:.5,freqEnd:35,attack:.01,release:.11}); tone(48,now+.17,.16,{gain:.4,freqEnd:30,attack:.01,release:.11}); },
-      fearNoise(dur){ dur=dur||.8; const c=ensure(),now=c.currentTime;
+      unlock, setVolume,
+      receive(){ if(!settings.seEnabled) return; const c=ensure(),now=c.currentTime; tone(880,now,.11,{gain:.26,attack:.004}); tone(1760,now+.08,.14,{gain:.22,attack:.004}); },
+      send(){ if(!settings.seEnabled) return; const c=ensure(),now=c.currentTime; tone(700,now,.07,{freqEnd:900,gain:.17,attack:.004}); },
+      readChime(){ if(!settings.seEnabled) return; const c=ensure(),now=c.currentTime; tone(1500,now,.09,{gain:.1,attack:.006}); },
+      heartbeat(){ if(!settings.horrorAudioEnabled) return; const c=ensure(),now=c.currentTime; tone(50,now,.16,{gain:.5,freqEnd:35,attack:.01,release:.11}); tone(48,now+.17,.16,{gain:.4,freqEnd:30,attack:.01,release:.11}); },
+      fearNoise(dur){ if(!settings.horrorAudioEnabled) return; dur=dur||.8; const c=ensure(),now=c.currentTime;
         const noise=c.createBufferSource(); noise.buffer=noiseBuffer(dur);
         const ng=c.createGain(); ng.gain.setValueAtTime(.0001,now); ng.gain.exponentialRampToValueAtTime(.18,now+.05); ng.gain.exponentialRampToValueAtTime(.0001,now+dur);
         const filt=c.createBiquadFilter(); filt.type='bandpass'; filt.frequency.value=1200; filt.Q.value=.7;
         noise.connect(filt); filt.connect(ng); ng.connect(master); noise.start(now); noise.stop(now+dur);
         tone(185,now,dur,{type:'sawtooth',gain:.12,attack:.02,release:dur*.8}); tone(196,now+.02,dur,{type:'sawtooth',gain:.1,attack:.02,release:dur*.8});
       },
-      callEnd(){ const c=ensure(),now=c.currentTime;
+      callEnd(){ if(!settings.horrorAudioEnabled) return; const c=ensure(),now=c.currentTime;
         const noise=c.createBufferSource(); noise.buffer=noiseBuffer(.6);
         const g=c.createGain(); g.gain.setValueAtTime(.3,now); g.gain.exponentialRampToValueAtTime(.0001,now+.6);
         const filt=c.createBiquadFilter(); filt.type='highpass'; filt.frequency.value=800;
         noise.connect(filt); filt.connect(g); g.connect(master); noise.start(now); noise.stop(now+.6);
         tone(320,now,.3,{type:'square',gain:.15,freqEnd:60});
       },
-      alarm(){ const c=ensure(),now=c.currentTime; for(let i=0;i<4;i++){ const t=now+i*.3; tone(880,t,.15,{type:'square',gain:.2}); tone(660,t+.15,.15,{type:'square',gain:.2}); } }
+      alarm(){ if(!settings.horrorAudioEnabled) return; const c=ensure(),now=c.currentTime; for(let i=0;i<4;i++){ const t=now+i*.3; tone(880,t,.15,{type:'square',gain:.2}); tone(660,t+.15,.15,{type:'square',gain:.2}); } },
+      testPing(){ const c=ensure(),now=c.currentTime; tone(880,now,.11,{gain:.26,attack:.004}); tone(1760,now+.08,.14,{gain:.22,attack:.004}); },
     };
   })();
 
@@ -420,18 +515,24 @@
   }
 
   // ============================================================
-  // 2. 早送り (FAST) 制御つき wait()
+  // 3. 難易度に応じた時間制御
   // ============================================================
   let FAST = false;
+  function fastAllowed(){ return settings.difficulty !== 'hard'; }
   function wait(ms){
-    const real = FAST ? Math.min(Math.max(ms*0.06, 40), 350) : ms;
+    const useFast = FAST && fastAllowed();
+    const real = useFast ? Math.min(Math.max(ms*0.06, 40), 350) : ms;
     return new Promise(r=>setTimeout(r, real));
   }
   function readDelay(){ return 1500 + Math.random()*1500; }
   function typingDelay(){ return 2000 + Math.random()*3000; }
+  function scaledActionSeconds(base){
+    if(settings.difficulty === 'easy') return Math.max(5, Math.round(base*0.5));
+    return base;
+  }
 
   // ============================================================
-  // 3. 不穏な画像プレースホルダー
+  // 4. 不穏な画像プレースホルダー
   // ============================================================
   function eerieSvg(kind){
     const grad = (id,c1,c2)=>`<radialGradient id="${id}" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></radialGradient>`;
@@ -449,12 +550,11 @@
   }
 
   // ============================================================
-  // 4. キャラクター・シナリオデータ（30人）
+  // 5. キャラクター・シナリオデータ（30人）※riskフィールド追加
   // ============================================================
   const COLORS = ['#f472b6','#38bdf8','#facc15','#a78bfa','#fb923c','#4ade80','#f87171','#22d3ee','#e879f9','#fbbf24'];
   function colorFor(i){ return COLORS[i % COLORS.length]; }
 
-  // ---- キャラ1: アオイ（人コワ）完全版 ----
   const char01 = {
     id:'char01', name:'アオイ', role:'後輩', genre:'人コワ・サスペンス', title:'真夜中のドアスコープ',
     emoji:'🌙', color:colorFor(0), startNodeId:'start',
@@ -464,8 +564,8 @@
           {sender:'them', text:'変な時間にすいません'},
           {sender:'them', text:'うちの部屋のドア、さっきからずっとガチャガチャされてて…', effect:'shake'},
         ], choices:[
-          {label:'誰か確かめろ、声出してみろ', next:'c1_bad_voice'},
-          {label:'絶対に声出すな。鍵はかかってるか？', next:'mid'},
+          {label:'誰か確かめろ、声出してみろ', next:'c1_bad_voice', risk:'danger'},
+          {label:'絶対に声出すな。鍵はかかってるか？', next:'mid', risk:'safe'},
         ] },
       c1_bad_voice:{ messages:[
           {sender:'them', text:'……「誰ですか」って言っちゃいました', effect:'shake'},
@@ -494,8 +594,8 @@
           {sender:'them', text:'…外で何か工具の音がする', effect:'shake'},
           {sender:'them', text:'チェーン外そうとしてる！！どうすればいいですか！？', effect:'shake-hard'},
         ], choices:[
-          {label:'ベランダから隣の部屋に助け求めろ！', next:'end_bad_balcony'},
-          {label:'電気消したまま110番してスマホを布団で覆え！', next:'end_survive'},
+          {label:'ベランダから隣の部屋に助け求めろ！', next:'end_bad_balcony', risk:'danger'},
+          {label:'電気消したまま110番してスマホを布団で覆え！', next:'end_survive', risk:'safe'},
         ] },
       end_bad_balcony:{ messages:[
           {sender:'them', text:'ベランダに出ます…！'},
@@ -516,7 +616,6 @@
     }
   };
 
-  // ---- キャラ2: タクヤ（オカルト）完全版 ----
   const char02 = {
     id:'char02', name:'タクヤ', role:'友人', genre:'現代怪異・オカルト', title:'霧の旧トンネル',
     emoji:'🚗', color:colorFor(1), startNodeId:'start',
@@ -526,8 +625,8 @@
           {sender:'them', text:'山道で車止まった'},
           {sender:'them', text:'旧水草トンネルの手前なんだけど、霧で前後が全く見えん', effect:'shake'},
         ], choices:[
-          {label:'ハザード焚いてボンネット開けてみろ', next:'c1_bad_hood'},
-          {label:'絶対車から出るな。ドアロックしろ', next:'mid'},
+          {label:'ハザード焚いてボンネット開けてみろ', next:'c1_bad_hood', risk:'danger'},
+          {label:'絶対車から出るな。ドアロックしろ', next:'mid', risk:'safe'},
         ] },
       c1_bad_hood:{ messages:[
           {sender:'them', text:'外出ます…ハザード点けて'},
@@ -544,8 +643,8 @@
           {sender:'them', text:'白っぽい服着た女だ'},
           {sender:'them', text:'裸足で霧の中歩いてる…', effect:'shake-hard'},
         ], choices:[
-          {label:'クラクション鳴らして威嚇しろ！', next:'end_bad_horn'},
-          {label:'ヘッドライトも社内灯も全部消せ！伏せろ！', next:'hide'},
+          {label:'クラクション鳴らして威嚇しろ！', next:'end_bad_horn', risk:'danger'},
+          {label:'ヘッドライトも社内灯も全部消せ！伏せろ！', next:'hide', risk:'safe'},
         ] },
       end_bad_horn:{ messages:[
           {sender:'system', text:'パアアアアアアン', sound:'noise', effect:'shake-hard'},
@@ -563,8 +662,8 @@
           {sender:'them', text:'でも車の後ろで止まった', effect:'shake'},
           {sender:'them', text:'トランクをコン、コン、って叩いてる…', effect:'shake-hard'},
         ], choices:[
-          {label:'今だ、エンジンかけ直してアクセル踏め！', next:'end_survive'},
-          {label:'そのまま女が立ち去るまで待て', next:'end_bad_wait'},
+          {label:'今だ、エンジンかけ直してアクセル踏め！', next:'end_survive', risk:'safe'},
+          {label:'そのまま女が立ち去るまで待て', next:'end_bad_wait', risk:'danger'},
         ] },
       end_bad_wait:{ messages:[
           {sender:'system', text:'トランクの音が、急に止む', effect:'flash'},
@@ -583,7 +682,6 @@
     }
   };
 
-  // ---- キャラ3: リョウ（密室）完全版 ----
   const char03 = {
     id:'char03', name:'リョウ', role:'バイト同僚', genre:'極限密室・パニック', title:'深夜ワンオペの閉店後',
     emoji:'🏪', color:colorFor(2), startNodeId:'start',
@@ -593,8 +691,8 @@
           {sender:'them', text:'深夜の棚卸し終わって施錠したんですけど'},
           {sender:'them', text:'店内から変な音します', effect:'shake'},
         ], choices:[
-          {label:'防犯カメラのモニター見ろ', next:'mid'},
-          {label:'気のせいだろ、早く帰れ', next:'c1_bad_ignore'},
+          {label:'防犯カメラのモニター見ろ', next:'mid', risk:'safe'},
+          {label:'気のせいだろ、早く帰れ', next:'c1_bad_ignore', risk:'danger'},
         ] },
       c1_bad_ignore:{ messages:[
           {sender:'them', text:'…そうします、帰りますね'},
@@ -609,8 +707,8 @@
           {sender:'them', text:'奥のお酒コーナーの死角に、黒いコート着た奴がずっと立ってます', effect:'shake'},
           {sender:'them', text:'昼間から店内に潜んでたっぽい…', effect:'shake-hard'},
         ], choices:[
-          {label:'バックヤードの事務所に内鍵かけて閉じこもれ', next:'hide'},
-          {label:'バット持って正面から外へ出ろ', next:'end_bad_bat'},
+          {label:'バックヤードの事務所に内鍵かけて閉じこもれ', next:'hide', risk:'safe'},
+          {label:'バット持って正面から外へ出ろ', next:'end_bad_bat', risk:'danger'},
         ] },
       end_bad_bat:{ messages:[
           {sender:'them', text:'バット持って正面に向かいます…！'},
@@ -628,8 +726,8 @@
           {sender:'them', text:'鍵開けようとしてる', effect:'shake-hard'},
           {sender:'them', text:'どうしよう…', effect:'shake-hard'},
         ], choices:[
-          {label:'警報ベルのボタン押して裏口の非常扉から逃げろ！', next:'end_survive'},
-          {label:'ロッカーの中に隠れてやり過ごせ！', next:'end_bad_locker'},
+          {label:'警報ベルのボタン押して裏口の非常扉から逃げろ！', next:'end_survive', risk:'safe'},
+          {label:'ロッカーの中に隠れてやり過ごせ！', next:'end_bad_locker', risk:'danger'},
         ] },
       end_bad_locker:{ messages:[
           {sender:'them', text:'ロッカーの中に隠れます…'},
@@ -649,7 +747,6 @@
     }
   };
 
-  // ---- テンプレートキャラ生成（char04〜char30） ----
   const GENRE_FLAVOR = {
     'horror': { bg:'shadow', bgAlt:'static', place:'部屋', verb:'物音' },
     'occult': { bg:'static', bgAlt:'shadow', place:'その場所', verb:'気配' },
@@ -669,8 +766,8 @@
             {sender:'them', text:'『'+title+'』の状況に巻き込まれました', effect:'shake'},
             {sender:'them', text:'助けてください、'+f.verb+'が止まらないんです…'},
           ], choices:[
-            {label:'落ち着いて周囲を確認させろ', next:'mid'},
-            {label:'今すぐそこから飛び出させろ', next:'c1_bad'},
+            {label:'落ち着いて周囲を確認させろ', next:'mid', risk:'safe'},
+            {label:'今すぐそこから飛び出させろ', next:'c1_bad', risk:'danger'},
           ] },
         c1_bad:{ messages:[
             {sender:'them', text:'今、飛び出します…！'},
@@ -690,8 +787,8 @@
             {sender:'them', text:'動きがありました', effect:'shake'},
             {sender:'them', text:'こっちに向かってきてる気がします…！どうすれば！？', effect:'shake-hard'},
           ], choices:[
-            {label:'一気に脱出ルートへ走らせろ！', next:'end_survive'},
-            {label:'物陰でやり過ごさせろ', next:'end_bad2'},
+            {label:'一気に脱出ルートへ走らせろ！', next:'end_survive', risk:'safe'},
+            {label:'物陰でやり過ごさせろ', next:'end_bad2', risk:'danger'},
           ] },
         end_bad2:{ messages:[
             {sender:'them', text:'物陰に隠れます…'},
@@ -712,58 +809,31 @@
   }
 
   const TEMPLATE_DEFS = [
-    // 人コワ・サスペンス 残り7
-    ['ストーカー','horror','人コワ・サスペンス'],
-    ['隣人の壁ドン','horror','人コワ・サスペンス'],
-    ['闇バイト逃走','horror','人コワ・サスペンス'],
-    ['煽り運転','horror','人コワ・サスペンス'],
-    ['覗き魔','horror','人コワ・サスペンス'],
-    ['マッチングアプリ','horror','人コワ・サスペンス'],
+    ['ストーカー','horror','人コワ・サスペンス'], ['隣人の壁ドン','horror','人コワ・サスペンス'],
+    ['闇バイト逃走','horror','人コワ・サスペンス'], ['煽り運転','horror','人コワ・サスペンス'],
+    ['覗き魔','horror','人コワ・サスペンス'], ['マッチングアプリ','horror','人コワ・サスペンス'],
     ['深夜の侵入者','horror','人コワ・サスペンス'],
-    // オカルト・都市伝説 残り7
-    ['事故物件','occult','現代怪異・オカルト'],
-    ['廃村配信','occult','現代怪異・オカルト'],
-    ['こっくりさん','occult','現代怪異・オカルト'],
-    ['深夜の学校','occult','現代怪異・オカルト'],
-    ['樹海','occult','現代怪異・オカルト'],
-    ['呪いの動画','occult','現代怪異・オカルト'],
+    ['事故物件','occult','現代怪異・オカルト'], ['廃村配信','occult','現代怪異・オカルト'],
+    ['こっくりさん','occult','現代怪異・オカルト'], ['深夜の学校','occult','現代怪異・オカルト'],
+    ['樹海','occult','現代怪異・オカルト'], ['呪いの動画','occult','現代怪異・オカルト'],
     ['ドッペルゲンガー','occult','現代怪異・オカルト'],
-    // 密室・極限サバイバル 残り6
-    ['停止エレベーター','confine','極限密室・パニック'],
-    ['水没地下室','confine','極限密室・パニック'],
-    ['山小屋の吹雪','confine','極限密室・パニック'],
-    ['沈没船','confine','極限密室・パニック'],
-    ['火災ビル','confine','極限密室・パニック'],
-    ['冷凍倉庫','confine','極限密室・パニック'],
-    // サイコ・異常心理 7
-    ['監禁実験','psycho','サイコ・異常心理'],
-    ['強制鬼ごっこ','psycho','サイコ・異常心理'],
-    ['裏アカウントの罠','psycho','サイコ・異常心理'],
-    ['新興宗教','psycho','サイコ・異常心理'],
-    ['親友の裏切り','psycho','サイコ・異常心理'],
-    ['模倣犯','psycho','サイコ・異常心理'],
+    ['停止エレベーター','confine','極限密室・パニック'], ['水没地下室','confine','極限密室・パニック'],
+    ['山小屋の吹雪','confine','極限密室・パニック'], ['沈没船','confine','極限密室・パニック'],
+    ['火災ビル','confine','極限密室・パニック'], ['冷凍倉庫','confine','極限密室・パニック'],
+    ['監禁実験','psycho','サイコ・異常心理'], ['強制鬼ごっこ','psycho','サイコ・異常心理'],
+    ['裏アカウントの罠','psycho','サイコ・異常心理'], ['新興宗教','psycho','サイコ・異常心理'],
+    ['親友の裏切り','psycho','サイコ・異常心理'], ['模倣犯','psycho','サイコ・異常心理'],
     ['謎のアンケート','psycho','サイコ・異常心理'],
   ];
-
-  const templateScenarios = TEMPLATE_DEFS.map((def, i)=>{
-    const idx = i+4; // char04〜char30
-    const name = TEMPLATE_NAMES[i % TEMPLATE_NAMES.length];
-    return buildTemplateScenario(idx, name, def[0], def[1], def[2]);
-  });
-
+  const templateScenarios = TEMPLATE_DEFS.map((def,i)=> buildTemplateScenario(i+4, TEMPLATE_NAMES[i % TEMPLATE_NAMES.length], def[0], def[1], def[2]));
   const scenarios = [char01, char02, char03, ...templateScenarios];
   function getScenario(id){ return scenarios.find(s=>s.id===id); }
 
   // ============================================================
-  // 5. セーブデータ
+  // 6. セーブデータ（進行状況）
   // ============================================================
   const SAVE_KEY = 'line-horror-save-v2';
-  function defaultSave(){
-    return {
-      unlocked: scenarios.slice(0,3).map(s=>s.id),
-      everCleared: [], everBad: [], latestStatus: {},
-    };
-  }
+  function defaultSave(){ return { unlocked: scenarios.slice(0,3).map(s=>s.id), everCleared:[], everBad:[], latestStatus:{} }; }
   function loadSave(){
     try{
       const raw = localStorage.getItem(SAVE_KEY);
@@ -775,47 +845,57 @@
   }
   function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
   let save = loadSave();
-
   function isUnlocked(id){ return save.unlocked.indexOf(id) !== -1; }
-
-  function unlockNext(){
-    const next = scenarios.find(s => save.unlocked.indexOf(s.id) === -1);
-    if(next){ save.unlocked.push(next.id); return next; }
-    return null;
-  }
-
+  function unlockNext(){ const next = scenarios.find(s => save.unlocked.indexOf(s.id) === -1); if(next){ save.unlocked.push(next.id); return next; } return null; }
   function recordEnding(id, type){
     save.latestStatus[id] = type;
     let unlockedChar = null;
-    if(type === 'success' && save.everCleared.indexOf(id) === -1){
-      save.everCleared.push(id);
-      unlockedChar = unlockNext();
-    }
-    if(type === 'bad' && save.everBad.indexOf(id) === -1){
-      save.everBad.push(id);
-    }
+    if(type==='success' && save.everCleared.indexOf(id)===-1){ save.everCleared.push(id); unlockedChar = unlockNext(); }
+    if(type==='bad' && save.everBad.indexOf(id)===-1){ save.everBad.push(id); }
     persist();
     return unlockedChar;
   }
 
   // ============================================================
-  // 6. DOM参照
+  // 7. DOM参照
   // ============================================================
   const $ = (id)=>document.getElementById(id);
-  const listScreen = $('list-screen'), chatScreen = $('chat-screen');
-  const threadList = $('thread-list'), resultModal = $('result-modal');
+  const homeScreen = $('home-screen'), chatScreen = $('chat-screen');
+  const threadList = $('thread-list'), friendsList = $('friends-list'), settingsList = $('settings-list');
+  const resultModal = $('result-modal'), warnModal = $('warn-modal');
   const timelineEl = $('timeline'), choicesEl = $('choices');
   const chatAvatar = $('chat-avatar'), chatName = $('chat-name'), chatStatus = $('chat-status');
   const callFlashHolder = $('call-flash-holder');
   const toastHolder = $('toast-holder');
   const fastToggle = $('fast-toggle');
+  const diffChip = $('diff-chip');
 
   let currentScenario = null;
   let genToken = 0;
+  let easyWarningUsed = false;
+  let choiceTimeoutHandle = null;
+
+  applyTheme();
+  SoundEngine.unlock;
 
   fastToggle.addEventListener('click', ()=>{
+    if(!fastAllowed()) return;
     FAST = !FAST;
     fastToggle.classList.toggle('on', FAST);
+  });
+
+  // ------------------------------------------------------------
+  // タブナビゲーション
+  // ------------------------------------------------------------
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      $('panel-'+btn.dataset.tab).classList.add('active');
+      if(btn.dataset.tab==='friends') renderFriends();
+      if(btn.dataset.tab==='settings') renderSettings();
+    });
   });
 
   // ------------------------------------------------------------
@@ -824,7 +904,6 @@
   function renderList(){
     $('stat-cleared').textContent = save.everCleared.length + '/' + scenarios.length;
     $('stat-bad').textContent = save.everBad.length + '/' + scenarios.length;
-
     threadList.innerHTML = '';
     scenarios.forEach(sc=>{
       const unlocked = isUnlocked(sc.id);
@@ -838,18 +917,11 @@
           ${unlocked && !status ? '<span class="unread-dot">1</span>' : ''}
         </div>
         <div class="thread-body">
-          <div class="thread-top">
-            <span class="thread-name">${unlocked ? sc.name : '???'}</span>
-            ${badgeHtml(unlocked, status)}
-          </div>
+          <div class="thread-top"><span class="thread-name">${unlocked ? sc.name : '???'}</span>${badgeHtml(unlocked, status)}</div>
           <div class="thread-sub">${unlocked ? (sc.title+' ─ '+sc.genre) : 'まだ解放されていません'}</div>
-        </div>
-      `;
-      if(unlocked){
-        btn.addEventListener('click', ()=> openScenario(sc.id));
-      } else {
-        btn.style.cursor = 'default';
-      }
+        </div>`;
+      if(unlocked) btn.addEventListener('click', ()=> openScenario(sc.id));
+      else btn.style.cursor = 'default';
       threadList.appendChild(btn);
     });
   }
@@ -860,48 +932,144 @@
     return '';
   }
 
-  function showToast(text){
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.innerHTML = `<span>📩</span><span>${text}</span>`;
-    toastHolder.appendChild(el);
-    requestAnimationFrame(()=> el.classList.add('show'));
-    setTimeout(()=>{
-      el.classList.remove('show');
-      setTimeout(()=> el.remove(), 400);
-    }, 2600);
+  // ------------------------------------------------------------
+  // 友だちタブ（ジャンル別図鑑）
+  // ------------------------------------------------------------
+  function renderFriends(){
+    friendsList.innerHTML = '';
+    const genres = [];
+    scenarios.forEach(sc=>{ if(genres.indexOf(sc.genre)===-1) genres.push(sc.genre); });
+    genres.forEach(genre=>{
+      const label = document.createElement('div');
+      label.className = 'genre-group-label';
+      label.textContent = genre;
+      friendsList.appendChild(label);
+      scenarios.filter(s=>s.genre===genre).forEach(sc=>{
+        const unlocked = isUnlocked(sc.id);
+        const status = save.latestStatus[sc.id];
+        const btn = document.createElement('button');
+        btn.className = 'thread';
+        if(!unlocked) btn.style.opacity = '.45';
+        btn.innerHTML = `
+          <div class="thread-avatar ${unlocked?'':'locked'}" style="background:${sc.color}">${unlocked ? sc.emoji : '🔒'}</div>
+          <div class="thread-body">
+            <div class="thread-top"><span class="thread-name">${unlocked ? sc.name : '???'}</span>${badgeHtml(unlocked, status)}</div>
+            <div class="thread-sub">${unlocked ? sc.title : '救出成功すると新たなSOSが届きます'}</div>
+          </div>`;
+        if(unlocked) btn.addEventListener('click', ()=> openScenario(sc.id));
+        else btn.style.cursor = 'default';
+        friendsList.appendChild(btn);
+      });
+    });
   }
 
-  $('reset-btn').addEventListener('click', ()=>{
-    if(confirm('すべてのプレイ状況をリセットします。よろしいですか？')){
-      save = defaultSave();
-      persist();
-      renderList();
-    }
-  });
+  // ------------------------------------------------------------
+  // 設定タブ
+  // ------------------------------------------------------------
+  function renderSettings(){
+    settingsList.innerHTML = `
+      <div class="settings-section">
+        <div class="settings-section-title">着せ替え</div>
+        <div class="theme-grid" id="theme-grid"></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">音量・サウンド</div>
+      </div>
+      <div class="settings-row">
+        <div style="flex:1">
+          <div class="settings-row-label">マスター音量</div>
+          <input type="range" min="0" max="100" value="${Math.round(settings.masterVolume*100)}" class="vol-slider" id="vol-slider">
+        </div>
+        <span class="vol-row-value" id="vol-value">${Math.round(settings.masterVolume*100)}%</span>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">効果音（受信音・送信音）</div><div class="settings-row-sub">ピコン♪ ポッ</div></div>
+        <label class="switch"><input type="checkbox" id="se-toggle" ${settings.seEnabled?'checked':''}><span class="switch-track"></span><span class="switch-thumb"></span></label>
+      </div>
+      <div class="settings-row" style="border-bottom:none;">
+        <div><div class="settings-row-label">環境音・ホラー演出音</div><div class="settings-row-sub">心音パルス・グリッチノイズ</div></div>
+        <label class="switch"><input type="checkbox" id="horror-toggle" ${settings.horrorAudioEnabled?'checked':''}><span class="switch-track"></span><span class="switch-thumb"></span></label>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">難易度</div>
+        <div class="difficulty-cards" id="diff-cards"></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">データ管理</div>
+        <button class="danger-btn" id="reset-progress-btn">救出記録とバッドエンド記録をリセットする</button>
+      </div>
+    `;
+
+    const themeGrid = $('theme-grid');
+    THEMES.forEach(t=>{
+      const card = document.createElement('button');
+      card.className = 'theme-card' + (settings.theme===t.id ? ' selected' : '');
+      card.innerHTML = `
+        <div class="theme-swatch"><span style="background:${t.colors[0]}"></span><span style="background:${t.colors[1]}"></span></div>
+        <div class="theme-card-name">${t.name}</div>
+        <div class="theme-card-desc">${t.desc}</div>`;
+      card.addEventListener('click', ()=>{
+        settings.theme = t.id; persistSettings(); applyTheme(); renderSettings();
+      });
+      themeGrid.appendChild(card);
+    });
+
+    const diffCards = $('diff-cards');
+    DIFFICULTIES.forEach(d=>{
+      const card = document.createElement('button');
+      card.className = 'diff-card' + (settings.difficulty===d.id ? ' selected' : '');
+      card.innerHTML = `
+        <div class="diff-card-top"><span class="diff-card-name ${d.id}">${d.name}</span></div>
+        <div class="diff-card-desc">${d.desc}</div>`;
+      card.addEventListener('click', ()=>{ settings.difficulty = d.id; persistSettings(); renderSettings(); });
+      diffCards.appendChild(card);
+    });
+
+    $('vol-slider').addEventListener('input', (e)=>{
+      const v = e.target.value/100;
+      settings.masterVolume = v;
+      SoundEngine.setVolume(v);
+      $('vol-value').textContent = e.target.value + '%';
+    });
+    $('vol-slider').addEventListener('change', ()=>{ persistSettings(); SoundEngine.testPing(); });
+    $('se-toggle').addEventListener('change', (e)=>{ settings.seEnabled = e.target.checked; persistSettings(); if(e.target.checked) SoundEngine.testPing(); });
+    $('horror-toggle').addEventListener('change', (e)=>{ settings.horrorAudioEnabled = e.target.checked; persistSettings(); });
+
+    $('reset-progress-btn').addEventListener('click', ()=>{
+      if(confirm('すべてのプレイ状況をリセットします。よろしいですか？')){
+        save = defaultSave(); persist(); renderList();
+        alert('リセットしました');
+      }
+    });
+  }
+
+  function showToast(text){
+    const el = document.createElement('div'); el.className='toast'; el.innerHTML = `<span>📩</span><span>${text}</span>`;
+    toastHolder.appendChild(el);
+    requestAnimationFrame(()=> el.classList.add('show'));
+    setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=> el.remove(), 400); }, 2600);
+  }
 
   // ------------------------------------------------------------
   // 画面遷移
   // ------------------------------------------------------------
-  function showScreen(el){ [listScreen, chatScreen].forEach(s=>s.classList.remove('active')); el.classList.add('active'); }
+  function showScreen(el){ [homeScreen, chatScreen].forEach(s=>s.classList.remove('active')); el.classList.add('active'); }
 
   function openScenario(id){
     SoundEngine.unlock();
     currentScenario = getScenario(id);
+    easyWarningUsed = false;
     renderList();
     startChat();
     showScreen(chatScreen);
   }
 
-  $('back-btn').addEventListener('click', ()=>{ genToken++; showScreen(listScreen); });
+  $('back-btn').addEventListener('click', ()=>{ genToken++; clearChoiceTimeout(); showScreen(homeScreen); });
 
   function handleCallTap(){
     SoundEngine.callEnd();
-    const flash = document.createElement('div');
-    flash.className = 'call-flash';
-    flash.innerHTML = '<span>通話が強制切断されました</span>';
-    callFlashHolder.appendChild(flash);
-    setTimeout(()=> flash.remove(), 800);
+    const flash = document.createElement('div'); flash.className='call-flash'; flash.innerHTML='<span>通話が強制切断されました</span>';
+    callFlashHolder.appendChild(flash); setTimeout(()=> flash.remove(), 800);
   }
   $('call-btn').addEventListener('click', handleCallTap);
 
@@ -916,14 +1084,21 @@
     chatAvatar.textContent = currentScenario.emoji;
     chatName.textContent = currentScenario.name;
     setChatStatus('オンライン');
+
+    const diffMeta = DIFFICULTIES.find(d=>d.id===settings.difficulty);
+    diffChip.textContent = diffMeta ? diffMeta.name.split('（')[0] : '';
+    diffChip.className = 'diff-chip ' + settings.difficulty;
+
+    FAST = false;
+    fastToggle.classList.remove('on');
+    fastToggle.disabled = !fastAllowed();
+    fastToggle.style.display = fastAllowed() ? '' : 'none';
+    chatScreen.classList.toggle('hard-mode', settings.difficulty==='hard');
+
     runNode(currentScenario.startNodeId);
   }
 
-  function setChatStatus(text, cls){
-    chatStatus.textContent = text;
-    chatStatus.className = 'chat-header-status' + (cls ? ' '+cls : '');
-  }
-
+  function setChatStatus(text, cls){ chatStatus.textContent = text; chatStatus.className = 'chat-header-status' + (cls?' '+cls:''); }
   function nowLabel(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
 
   function triggerScreenEffect(effect){
@@ -935,100 +1110,68 @@
     setTimeout(()=> chatScreen.classList.remove(cls), 650);
   }
 
-  function escapeHtml(str){
-    return String(str||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
+  function escapeHtml(str){ return String(str||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function scrollToBottom(){ timelineEl.scrollTop = timelineEl.scrollHeight; }
 
   function appendSystemMessage(msg){
-    const row = document.createElement('div'); row.className = 'sys-row';
+    const row = document.createElement('div'); row.className='sys-row';
     let inner = '<div class="sys-inner">';
     if(msg.text) inner += `<span class="sys-text">${escapeHtml(msg.text)}</span>`;
-    if(msg.image){
-      inner += `<div class="eerie-frame">${eerieSvg(msg.image.kind)}</div>`;
-      if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`;
-    }
-    inner += '</div>';
-    row.innerHTML = inner;
-    timelineEl.appendChild(row);
+    if(msg.image){ inner += `<div class="eerie-frame">${eerieSvg(msg.image.kind)}</div>`; if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`; }
+    inner += '</div>'; row.innerHTML = inner; timelineEl.appendChild(row);
   }
-
   function appendThemMessage(msg){
     const time = nowLabel();
-    const row = document.createElement('div'); row.className = 'msg-row them';
+    const row = document.createElement('div'); row.className='msg-row them';
     const textHtml = msg.glitch ? `<span class="glitch">${escapeHtml(msg.text)}</span>` : escapeHtml(msg.text);
-    row.innerHTML = `
-      <div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
-      <div class="msg-wrap">
-        <div class="bubble">${textHtml}</div>
-        <div class="msg-meta"><span>${time}</span></div>
-      </div>`;
+    row.innerHTML = `<div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
+      <div class="msg-wrap"><div class="bubble">${textHtml}</div><div class="msg-meta"><span>${time}</span></div></div>`;
     timelineEl.appendChild(row);
   }
-
-  // 「me」メッセージ：未読→(1.5〜3秒)→既読 の時差を再現
   async function appendMeMessage(text, myToken){
     const time = nowLabel();
-    const row = document.createElement('div'); row.className = 'msg-row me';
+    const row = document.createElement('div'); row.className='msg-row me';
     const readId = 'read-' + Math.random().toString(36).slice(2);
-    row.innerHTML = `
-      <div class="msg-wrap">
-        <div class="bubble">${escapeHtml(text)}</div>
-        <div class="msg-meta"><span class="read-label" id="${readId}">未読</span><span>${time}</span></div>
-      </div>`;
-    timelineEl.appendChild(row);
-    scrollToBottom();
-
+    row.innerHTML = `<div class="msg-wrap"><div class="bubble">${escapeHtml(text)}</div><div class="msg-meta"><span class="read-label" id="${readId}">未読</span><span>${time}</span></div></div>`;
+    timelineEl.appendChild(row); scrollToBottom();
     await wait(readDelay());
     if(myToken !== genToken) return;
     const label = document.getElementById(readId);
-    if(label){ label.textContent = '既読'; label.classList.add('is-read'); }
+    if(label){ label.textContent='既読'; label.classList.add('is-read'); }
     playSound('readChime');
   }
-
   function showTyping(show){
     let row = document.getElementById('typing-row');
     if(show){
       if(row) return;
       row = document.createElement('div'); row.id='typing-row'; row.className='typing-row';
-      row.innerHTML = `
-        <div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
+      row.innerHTML = `<div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
         <div class="typing-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
       timelineEl.appendChild(row); scrollToBottom();
     } else if(row){ row.remove(); }
   }
 
-  // 潜伏・行動タイマー
-  function runActionTimer(seconds, label, myToken){
+  function runActionTimer(baseSeconds, label, myToken){
+    const seconds = scaledActionSeconds(baseSeconds);
     return new Promise(resolve=>{
-      const totalMs = FAST ? 1400 : seconds*1000;
+      const useFast = FAST && fastAllowed();
+      const totalMs = useFast ? 1400 : seconds*1000;
       const row = document.createElement('div'); row.className='action-timer-row';
-      row.innerHTML = `
-        <div class="action-timer">
+      row.innerHTML = `<div class="action-timer">
           <div class="at-label"><span class="dot"></span><span>${escapeHtml(label)}</span></div>
           <div class="at-bar-track"><div class="at-bar-fill" id="at-fill" style="width:100%"></div></div>
-          <div class="at-count" id="at-count">${FAST? '' : seconds}</div>
+          <div class="at-count" id="at-count">${useFast? '' : seconds}</div>
         </div>`;
       timelineEl.appendChild(row); scrollToBottom();
       setChatStatus(label, 'waiting');
-
-      const fill = row.querySelector('#at-fill');
-      const countEl = row.querySelector('#at-count');
+      const fill = row.querySelector('#at-fill'), countEl = row.querySelector('#at-count');
       const start = performance.now();
-
       function tick(now){
         if(myToken !== genToken) return;
-        const elapsed = now - start;
-        const remain = Math.max(0, totalMs - elapsed);
-        const pct = Math.max(0, 100 * remain / totalMs);
-        fill.style.width = pct + '%';
-        if(!FAST) countEl.textContent = Math.ceil(remain/1000) + '秒';
-        if(remain <= 0){
-          row.remove();
-          resolve();
-          return;
-        }
+        const elapsed = now-start, remain = Math.max(0, totalMs-elapsed), pct = Math.max(0, 100*remain/totalMs);
+        fill.style.width = pct+'%';
+        if(!useFast) countEl.textContent = Math.ceil(remain/1000)+'秒';
+        if(remain<=0){ row.remove(); resolve(); return; }
         requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
@@ -1073,7 +1216,6 @@
         scrollToBottom();
         await wait(200);
       } else if(msg.sender === 'me'){
-        // シナリオ側で明示された「自分の発言」（アドバイス等）
         await appendMeMessage(msg.text, myToken);
         if(myToken !== genToken) return;
       }
@@ -1091,7 +1233,7 @@
     }
 
     if(node.choices && node.choices.length){
-      renderChoices(node.choices);
+      renderChoices(node.choices, myToken);
       return;
     }
 
@@ -1102,31 +1244,82 @@
     }
   }
 
-  function renderChoices(choices){
+  function clearChoiceTimeout(){
+    if(choiceTimeoutHandle){ clearInterval(choiceTimeoutHandle); choiceTimeoutHandle = null; }
+    const row = document.getElementById('choice-timer-row');
+    if(row) row.remove();
+  }
+
+  function renderChoices(choices, myToken){
     choicesEl.innerHTML = '';
+
+    if(settings.difficulty === 'hard'){
+      const timerRow = document.createElement('div');
+      timerRow.className = 'choice-timer'; timerRow.id = 'choice-timer-row';
+      timerRow.innerHTML = `<span class="choice-timer-label">残り25秒</span><div class="choice-timer-track"><div class="choice-timer-fill" id="choice-timer-fill" style="width:100%"></div></div>`;
+      choicesEl.appendChild(timerRow);
+      const fill = timerRow.querySelector('#choice-timer-fill');
+      const label = timerRow.querySelector('.choice-timer-label');
+      const totalMs = 25000;
+      const start = performance.now();
+      choiceTimeoutHandle = setInterval(()=>{
+        if(myToken !== genToken){ clearChoiceTimeout(); return; }
+        const remain = Math.max(0, totalMs - (performance.now()-start));
+        fill.style.width = (100*remain/totalMs)+'%';
+        label.textContent = '残り'+Math.ceil(remain/1000)+'秒';
+        if(remain <= 0){
+          clearChoiceTimeout();
+          choicesEl.classList.remove('show');
+          finishScenario({type:'bad', title:'既読スルー', desc:'制限時間内に返信できなかった。既読だけがついたまま、相手の反応は途絶えた。'});
+        }
+      }, 100);
+    }
+
     choices.forEach(choice=>{
       const btn = document.createElement('button');
       btn.className = 'choice-btn';
-      btn.textContent = choice.label;
-      btn.addEventListener('click', async ()=>{
-        const myToken = genToken;
-        SoundEngine.send();
-        choicesEl.classList.remove('show');
-        await appendMeMessage(choice.label, myToken);
-        if(myToken !== genToken) return;
-        setTimeout(()=> runNode(choice.next), 250);
-      });
+      const hint = (settings.difficulty==='easy' && choice.risk) ? `<span class="risk-hint">${choice.risk==='danger'?'🔴':'🟢'}</span>` : '';
+      btn.innerHTML = `${hint}<span>${escapeHtml(choice.label)}</span>`;
+      btn.addEventListener('click', ()=> handleChoiceClick(choice, myToken));
       choicesEl.appendChild(btn);
     });
     requestAnimationFrame(()=> choicesEl.classList.add('show'));
     scrollToBottom();
   }
 
+  function handleChoiceClick(choice, myToken){
+    const needsWarning = settings.difficulty==='easy' && choice.risk==='danger' && !easyWarningUsed;
+    if(needsWarning){
+      warnModal.classList.add('show');
+      const onCancel = ()=>{ cleanup(); };
+      const onProceed = ()=>{ cleanup(); easyWarningUsed = true; commitChoice(choice, myToken); };
+      function cleanup(){
+        warnModal.classList.remove('show');
+        $('warn-cancel').removeEventListener('click', onCancel);
+        $('warn-proceed').removeEventListener('click', onProceed);
+      }
+      $('warn-cancel').addEventListener('click', onCancel);
+      $('warn-proceed').addEventListener('click', onProceed);
+      return;
+    }
+    commitChoice(choice, myToken);
+  }
+
+  async function commitChoice(choice, myToken){
+    clearChoiceTimeout();
+    SoundEngine.send();
+    choicesEl.classList.remove('show');
+    await appendMeMessage(choice.label, myToken);
+    if(myToken !== genToken) return;
+    setTimeout(()=> runNode(choice.next), 250);
+  }
+
   // ------------------------------------------------------------
   // リザルト
   // ------------------------------------------------------------
   function finishScenario(ending){
-    const unlockedChar = recordEnding(currentScenario.id, ending.type);
+    clearChoiceTimeout();
+    const unlockedChar = currentScenario ? recordEnding(currentScenario.id, ending.type) : null;
     renderList();
 
     const card = $('result-card');
@@ -1137,14 +1330,11 @@
     $('result-desc').textContent = ending.desc;
     $('result-unlock').textContent = unlockedChar ? `新着SOS：${unlockedChar.name}が解放されました` : '';
     resultModal.classList.add('show');
-
-    if(unlockedChar){
-      setTimeout(()=> showToast(unlockedChar.name+'から新着SOSが届きました'), 500);
-    }
+    if(unlockedChar) setTimeout(()=> showToast(unlockedChar.name+'から新着SOSが届きました'), 500);
   }
 
-  $('retry-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); startChat(); });
-  $('backlist-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); genToken++; showScreen(listScreen); });
+  $('retry-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); easyWarningUsed=false; startChat(); });
+  $('backlist-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); genToken++; showScreen(homeScreen); });
 
   // ------------------------------------------------------------
   // 初期化
