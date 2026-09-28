@@ -1042,7 +1042,15 @@
   // 6. セーブデータ（進行状況）
   // ============================================================
   const SAVE_KEY = 'line-horror-save-v2';
-  function defaultSave(){ return { unlocked: scenarios.slice(0,3).map(s=>s.id), everCleared:[], everBad:[], latestStatus:{} }; }
+  function defaultSave(){
+    return {
+      unlocked: scenarios.slice(0,3).map(s=>s.id),
+      everCleared:[], everBad:[], latestStatus:{},
+      progress:{},        // scenarioId -> {nodeId, log, choices, ended} 会話の再開用チェックポイント
+      lastActivityAt:{},  // scenarioId -> 活動カウンタ（トーク/友だちの並び替えに使用）
+      activityCounter:0,
+    };
+  }
   function loadSave(){
     try{
       const raw = localStorage.getItem(SAVE_KEY);
@@ -1055,7 +1063,26 @@
   function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
   let save = loadSave();
   function isUnlocked(id){ return save.unlocked.indexOf(id) !== -1; }
-  function unlockNext(){ const next = scenarios.find(s => save.unlocked.indexOf(s.id) === -1); if(next){ save.unlocked.push(next.id); return next; } return null; }
+  function touchActivity(id){ save.activityCounter = (save.activityCounter||0)+1; save.lastActivityAt[id] = save.activityCounter; }
+  function hasUnread(id){ return !save.progress[id]; }
+  function previewFor(sc){
+    const progress = save.progress[sc.id];
+    if(progress && progress.log && progress.log.length){
+      const last = progress.log[progress.log.length-1];
+      let txt = last.text || (last.image ? '['+(last.image.caption||'画像')+']' : '');
+      if(last.t==='me') txt = 'あなた: ' + txt;
+      return txt || (sc.title+' ─ '+sc.genre);
+    }
+    return sc.title + ' ─ ' + sc.genre;
+  }
+  function sortedUnlockedScenarios(){
+    return scenarios.filter(sc=>isUnlocked(sc.id)).sort((a,b)=>{
+      const ta = save.lastActivityAt[a.id] || 0, tb = save.lastActivityAt[b.id] || 0;
+      if(tb !== ta) return tb - ta;
+      return save.unlocked.indexOf(a.id) - save.unlocked.indexOf(b.id);
+    });
+  }
+  function unlockNext(){ const next = scenarios.find(s => save.unlocked.indexOf(s.id) === -1); if(next){ save.unlocked.push(next.id); touchActivity(next.id); return next; } return null; }
   function recordEnding(id, type){
     save.latestStatus[id] = type;
     let unlockedChar = null;
@@ -1091,6 +1118,7 @@
   let genToken = 0;
   let easyWarningUsed = false;
   let choiceTimeoutHandle = null;
+  let currentLog = [];
 
   applyTheme();
   SoundEngine.unlock;
@@ -1163,70 +1191,54 @@
   // ------------------------------------------------------------
   // トーク一覧
   // ------------------------------------------------------------
-  function renderList(){
-    $('stat-cleared').textContent = save.everCleared.length + '/' + scenarios.length;
-    $('stat-bad').textContent = save.everBad.length + '/' + scenarios.length;
-    threadList.innerHTML = '';
-    scenarios.forEach(sc=>{
-      const unlocked = isUnlocked(sc.id);
-      const status = save.latestStatus[sc.id];
-      const btn = document.createElement('button');
-      btn.className = 'thread';
-      if(!unlocked) btn.style.opacity = '.45';
-      const av = avatarStyleAndInner(sc);
-      btn.innerHTML = `
-        <div class="thread-avatar ${unlocked?'':'locked'}" style="${unlocked ? av.style : 'background:'+sc.color}">
-          ${unlocked ? av.inner : '🔒'}
-          ${unlocked && !status ? '<span class="unread-dot">1</span>' : ''}
-        </div>
-        <div class="thread-body">
-          <div class="thread-top"><span class="thread-name">${unlocked ? sc.name : '???'}</span>${badgeHtml(unlocked, status)}</div>
-          <div class="thread-sub">${unlocked ? (sc.title+' ─ '+sc.genre) : 'まだ解放されていません'}</div>
-        </div>`;
-      if(unlocked) btn.addEventListener('click', ()=> openScenario(sc.id));
-      else btn.style.cursor = 'default';
-      threadList.appendChild(btn);
-    });
+  // 未開放のキャラは一覧に一切出さない（LINEの「友だち追加していない相手」と同じ扱い）
+  function buildThreadRow(sc, opts){
+    opts = opts || {};
+    const status = save.latestStatus[sc.id];
+    const unread = hasUnread(sc.id);
+    const btn = document.createElement('button');
+    btn.className = 'thread';
+    const av = avatarStyleAndInner(sc);
+    btn.innerHTML = `
+      <div class="thread-avatar" style="${av.style}">
+        ${av.inner}
+        ${unread ? '<span class="unread-dot">1</span>' : ''}
+      </div>
+      <div class="thread-body">
+        <div class="thread-top"><span class="thread-name">${sc.name}</span>${badgeHtml(status)}</div>
+        <div class="thread-sub">${escapeHtml(previewFor(sc))}</div>
+      </div>`;
+    btn.addEventListener('click', ()=> openScenario(sc.id));
+    return btn;
   }
-  function badgeHtml(unlocked, status){
-    if(!unlocked) return '<span class="badge locked">未解放</span>';
+  function badgeHtml(status){
     if(status==='success') return '<span class="badge success">救出成功</span>';
     if(status==='bad') return '<span class="badge bad">音信不通</span>';
     return '';
   }
 
+  function renderList(){
+    $('stat-cleared').textContent = save.everCleared.length + '/' + scenarios.length;
+    $('stat-bad').textContent = save.everBad.length + '/' + scenarios.length;
+    threadList.innerHTML = '';
+    sortedUnlockedScenarios().forEach(sc=> threadList.appendChild(buildThreadRow(sc)));
+  }
+
   // ------------------------------------------------------------
-  // 友だちタブ（ジャンル別図鑑）
+  // 友だちタブ（解放済みの相手のみ・フラットなリスト。LINEの友だちリストと同様、ジャンルでは分類しない）
   // ------------------------------------------------------------
   function renderFriends(){
     friendsList.innerHTML = '';
-    const genres = [];
-    scenarios.forEach(sc=>{ if(genres.indexOf(sc.genre)===-1) genres.push(sc.genre); });
-    genres.forEach(genre=>{
-      const label = document.createElement('div');
-      label.className = 'genre-group-label';
-      label.textContent = genre;
-      friendsList.appendChild(label);
-      scenarios.filter(s=>s.genre===genre).forEach(sc=>{
-        const unlocked = isUnlocked(sc.id);
-        const status = save.latestStatus[sc.id];
-        const btn = document.createElement('button');
-        btn.className = 'thread';
-        if(!unlocked) btn.style.opacity = '.45';
-        const av = avatarStyleAndInner(sc);
-        btn.innerHTML = `
-          <div class="thread-avatar ${unlocked?'':'locked'}" style="${unlocked ? av.style : 'background:'+sc.color}">${unlocked ? av.inner : '🔒'}</div>
-          <div class="thread-body">
-            <div class="thread-top"><span class="thread-name">${unlocked ? sc.name : '???'}</span>${badgeHtml(unlocked, status)}</div>
-            <div class="thread-sub">${unlocked ? sc.title : '救出成功すると新たなSOSが届きます'}</div>
-          </div>`;
-        if(unlocked) btn.addEventListener('click', ()=> openScenario(sc.id));
-        else btn.style.cursor = 'default';
-        friendsList.appendChild(btn);
-      });
-    });
+    const list = sortedUnlockedScenarios();
+    if(!list.length){
+      const empty = document.createElement('div');
+      empty.className = 'genre-group-label';
+      empty.textContent = 'まだ友だちがいません';
+      friendsList.appendChild(empty);
+      return;
+    }
+    list.forEach(sc=> friendsList.appendChild(buildThreadRow(sc)));
   }
-
   // ------------------------------------------------------------
   // ショップタブ
   // ------------------------------------------------------------
@@ -1402,16 +1414,36 @@
   // ------------------------------------------------------------
   function showScreen(el){ [homeScreen, chatScreen].forEach(s=>s.classList.remove('active')); el.classList.add('active'); }
 
+  // トークを開く。前回の続きがあれば会話をゼロから流し直さず、そのまま復元する
+  // （LINEでトークを開き直しても履歴が消えないのと同じ挙動）。
   function openScenario(id){
     SoundEngine.unlock();
     currentScenario = getScenario(id);
     easyWarningUsed = false;
+    touchActivity(id); persist();
     renderList();
-    startChat();
     showScreen(chatScreen);
+
+    initChatHeader();
+    const progress = save.progress[id];
+    if(progress && progress.log){
+      currentLog = progress.log.slice();
+      renderLogInstantly(currentLog);
+      if(progress.ended){
+        setChatStatus('オフライン', 'offline');
+      } else if(progress.choices && progress.choices.length){
+        const myToken = ++genToken;
+        renderChoices(progress.choices, myToken);
+      } else {
+        runNode(progress.nodeId);
+      }
+    } else {
+      currentLog = [];
+      runNode(currentScenario.startNodeId);
+    }
   }
 
-  $('back-btn').addEventListener('click', ()=>{ genToken++; clearChoiceTimeout(); stampPicker.classList.remove('show'); showScreen(homeScreen); });
+  $('back-btn').addEventListener('click', ()=>{ genToken++; clearChoiceTimeout(); stampPicker.classList.remove('show'); showScreen(homeScreen); renderList(); });
 
   function handleCallTap(){
     SoundEngine.callEnd();
@@ -1423,7 +1455,7 @@
   // ------------------------------------------------------------
   // チャット進行エンジン
   // ------------------------------------------------------------
-  function startChat(){
+  function initChatHeader(){
     timelineEl.innerHTML = '';
     choicesEl.classList.remove('show');
     choicesEl.innerHTML = '';
@@ -1443,8 +1475,46 @@
     fastToggle.disabled = !fastAllowed();
     fastToggle.style.display = fastAllowed() ? '' : 'none';
     chatScreen.classList.toggle('hard-mode', settings.difficulty==='hard');
+  }
 
+  // 会話を最初から流し直す（初回プレイ・やり直し用）
+  function startChat(){
+    initChatHeader();
+    currentLog = [];
     runNode(currentScenario.startNodeId);
+  }
+
+  // 保存済みログを、演出（タイプ中・遅延・効果音）なしで即座に描画する
+  function renderLogInstantly(log){
+    timelineEl.innerHTML = '';
+    log.forEach(entry=>{
+      if(entry.t === 'them'){
+        const row = document.createElement('div'); row.className='msg-row them';
+        const textHtml = entry.glitch ? `<span class="glitch">${escapeHtml(entry.text)}</span>` : escapeHtml(entry.text);
+        const av = avatarStyleAndInner(currentScenario);
+        row.innerHTML = `<div class="msg-avatar" style="${av.style}">${av.inner}</div>
+          <div class="msg-wrap"><div class="bubble">${textHtml}</div><div class="msg-meta"><span>${entry.time||''}</span></div></div>`;
+        timelineEl.appendChild(row);
+      } else if(entry.t === 'system'){
+        const row = document.createElement('div'); row.className='sys-row';
+        let inner = '<div class="sys-inner">';
+        if(entry.text) inner += `<span class="sys-text">${escapeHtml(entry.text)}</span>`;
+        if(entry.image){
+          const photo = SCENE_PHOTOS[entry.image.kind];
+          const frameContent = photo
+            ? `<img class="ai-photo loaded" src="${photo}" alt="${escapeHtml(entry.image.caption||'')}">`
+            : eerieSvg(entry.image.kind);
+          inner += `<div class="eerie-frame">${frameContent}</div>`;
+          if(entry.image.caption) inner += `<div class="eerie-caption">${escapeHtml(entry.image.caption)}</div>`;
+        }
+        inner += '</div>'; row.innerHTML = inner; timelineEl.appendChild(row);
+      } else if(entry.t === 'me'){
+        const row = document.createElement('div'); row.className='msg-row me';
+        row.innerHTML = `<div class="msg-wrap"><div class="bubble">${escapeHtml(entry.text)}</div><div class="msg-meta"><span class="read-label is-read">既読</span><span>${entry.time||''}</span></div></div>`;
+        timelineEl.appendChild(row);
+      }
+    });
+    scrollToBottom();
   }
 
   function setChatStatus(text, cls){ chatStatus.textContent = text; chatStatus.className = 'chat-header-status' + (cls?' '+cls:''); }
@@ -1477,6 +1547,7 @@
       if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`;
     }
     inner += '</div>'; row.innerHTML = inner; timelineEl.appendChild(row);
+    currentLog.push({ t:'system', text: msg.text||'', image: msg.image ? { kind: msg.image.kind, caption: msg.image.caption } : null });
 
     // 実写画像が既にある場合はAI生成をスキップする。
     // AI画像生成が有効なら、SVGプレースホルダーを裏で実写風画像に差し替える（キャッシュがあれば即時・APIは叩かない）
@@ -1505,6 +1576,7 @@
     row.innerHTML = `<div class="msg-avatar" style="${av.style}">${av.inner}</div>
       <div class="msg-wrap"><div class="bubble">${textHtml}</div><div class="msg-meta"><span>${time}</span></div></div>`;
     timelineEl.appendChild(row);
+    currentLog.push({ t:'them', text: msg.text, glitch: !!msg.glitch, time });
   }
   async function appendMeMessage(text, myToken){
     const time = nowLabel();
@@ -1512,6 +1584,7 @@
     const readId = 'read-' + Math.random().toString(36).slice(2);
     row.innerHTML = `<div class="msg-wrap"><div class="bubble">${escapeHtml(text)}</div><div class="msg-meta"><span class="read-label" id="${readId}">未読</span><span>${time}</span></div></div>`;
     timelineEl.appendChild(row); scrollToBottom();
+    currentLog.push({ t:'me', text, time });
     await wait(readDelay());
     if(myToken !== genToken) return;
     const label = document.getElementById(readId);
@@ -1575,6 +1648,11 @@
     const node = currentScenario.nodes[nodeId];
     if(!node) return;
 
+    // チェックポイント：このノードの再生開始時点を保存。
+    // 中断された場合は、シナリオの最初からではなくこのノードの頭から再開する。
+    save.progress[currentScenario.id] = { nodeId, log: currentLog.slice(), choices:null, ended:null };
+    persist();
+
     for(const msg of node.messages){
       if(myToken !== genToken) return;
 
@@ -1620,11 +1698,15 @@
       setChatStatus('オフライン', 'offline');
       await wait(500);
       if(myToken !== genToken) return;
+      save.progress[currentScenario.id] = { nodeId, log: currentLog.slice(), choices:null, ended: node.ending };
+      persist();
       finishScenario(node.ending);
       return;
     }
 
     if(node.choices && node.choices.length){
+      save.progress[currentScenario.id] = { nodeId, log: currentLog.slice(), choices: node.choices, ended:null };
+      persist();
       renderChoices(node.choices, myToken);
       return;
     }
@@ -1727,7 +1809,7 @@
   }
 
   $('retry-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); easyWarningUsed=false; startChat(); });
-  $('backlist-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); genToken++; showScreen(homeScreen); });
+  $('backlist-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); genToken++; showScreen(homeScreen); renderList(); });
 
   // ------------------------------------------------------------
   // 初期化
