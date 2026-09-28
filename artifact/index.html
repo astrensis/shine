@@ -45,6 +45,12 @@
     --bubble-me:#ff8fc7; --bubble-me-text:#4a0f2c;
     --accent:#ff5fa8; --list-header:#1a1115;
   }
+  #stage[data-app-theme="blood"]{
+    --chat-bg:#1a0505; --chat-header:#0d0202;
+    --bubble-them:#2a0a0a; --bubble-them-text:#f5d0d0;
+    --bubble-me:#b91c1c; --bubble-me-text:#fee2e2;
+    --accent:#ef4444; --list-header:#0a0101; --list-bg:#100303;
+  }
 
   *{box-sizing:border-box;}
   body{
@@ -285,6 +291,34 @@
   @media (prefers-reduced-motion: reduce){
     .fx-shake,.fx-shake-hard,.fx-flash,.eerie-frame,.glitch,.typing-dot,.at-label .dot,.noise-overlay{ animation:none !important; }
   }
+
+  /* ---- ショップタブ ---- */
+  .coin-pill{ display:flex; align-items:center; gap:5px; background:rgba(250,204,21,.12); border:1px solid rgba(250,204,21,.35); color:#facc15; font-size:12px; font-weight:800; padding:6px 12px; border-radius:999px; }
+  .shop-section{ padding:14px 18px 6px; }
+  .shop-item{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:rgba(255,255,255,.04); margin-bottom:8px; }
+  .shop-item-icon{ width:42px;height:42px;border-radius:12px; display:flex;align-items:center;justify-content:center; font-size:20px; background:rgba(255,255,255,.06); flex-shrink:0; }
+  .shop-item-body{ flex:1; min-width:0; }
+  .shop-item-name{ color:var(--list-text); font-size:13px; font-weight:700; }
+  .shop-item-desc{ color:var(--list-sub); font-size:10.5px; margin-top:2px; line-height:1.4; }
+  .shop-buy-btn{ flex-shrink:0; padding:8px 12px; border-radius:999px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; background:var(--accent); color:#fff; }
+  .shop-buy-btn.owned{ background:rgba(255,255,255,.1); color:var(--list-sub); cursor:default; }
+  .shop-buy-btn.disabled{ background:rgba(255,255,255,.06); color:#5a5e66; cursor:not-allowed; }
+  .shop-hint{ color:var(--list-sub); font-size:10.5px; padding:0 18px 14px; line-height:1.6; }
+
+  /* ---- スタンプ ---- */
+  .stamp-picker{ position:absolute; left:0; right:0; bottom:0; z-index:4; background:#eef1f4; border-top:1px solid rgba(0,0,0,.08); padding:12px; transform:translateY(100%); transition:transform .3s cubic-bezier(.22,1,.36,1); max-height:52%; overflow-y:auto; }
+  .stamp-picker.show{ transform:translateY(0); }
+  .stamp-picker-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .stamp-picker-title{ font-size:11.5px; font-weight:800; color:#555; }
+  .stamp-picker-close{ background:none; border:none; color:#888; font-size:11px; cursor:pointer; font-family:inherit; }
+  .stamp-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .stamp-item{ aspect-ratio:1; border-radius:12px; background:#fff; border:1px solid rgba(0,0,0,.06); display:flex;align-items:center;justify-content:center; font-size:26px; cursor:pointer; }
+  .stamp-item:active{ transform:scale(.92); }
+  .stamp-item.locked{ background:#e4e6e9; color:#aaa; font-size:16px; cursor:not-allowed; }
+  .msg-row.me .stamp-bubble{ font-size:52px; line-height:1; background:none; box-shadow:none; padding:0; }
+  .msg-row.me .stamp-bubble::before{ display:none; }
+  .ai-photo{ display:block; width:100%; aspect-ratio:3/2; object-fit:cover; opacity:0; transition:opacity .4s ease; }
+  .ai-photo.loaded{ opacity:1; }
 </style>
 
 <div id="stage">
@@ -320,6 +354,14 @@
           <div class="friends-list" id="friends-list"></div>
         </div>
 
+        <!-- ショップ -->
+        <div class="tab-panel" id="panel-shop">
+          <div class="panel-header">
+            <div class="panel-header-top"><h1>ショップ</h1><span class="coin-pill" id="coin-pill">🪙 0</span></div>
+          </div>
+          <div class="shop-list" id="shop-list" style="flex:1;overflow-y:auto;"></div>
+        </div>
+
         <!-- 設定 -->
         <div class="tab-panel" id="panel-settings">
           <div class="panel-header"><div class="panel-header-top"><h1>設定</h1></div></div>
@@ -335,6 +377,10 @@
         <button class="nav-btn" data-tab="friends">
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>友だち</span>
+        </button>
+        <button class="nav-btn" data-tab="shop">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span>ショップ</span>
         </button>
         <button class="nav-btn" data-tab="settings">
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -366,9 +412,16 @@
       <div class="input-bar">
         <span class="ib-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></span>
         <div class="ib-field">メッセージを入力</div>
+        <button class="ib-icon" id="stamp-icon-btn" style="background:none;border:none;cursor:pointer;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </button>
         <span class="ib-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg></span>
       </div>
       <div class="choices" id="choices"></div>
+      <div class="stamp-picker" id="stamp-picker">
+        <div class="stamp-picker-head"><span class="stamp-picker-title">スタンプを送る</span><button class="stamp-picker-close" id="stamp-picker-close">閉じる</button></div>
+        <div class="stamp-grid" id="stamp-grid"></div>
+      </div>
       <div id="call-flash-holder"></div>
     </div>
   </div>
@@ -424,6 +477,7 @@
     {id:'dark', name:'ダーク・ブラッド', desc:'漆黒×ブラッドレッド', colors:['#111827','#7f1d1d']},
     {id:'retro', name:'レトロガラケー', desc:'緑がかったモノクロ液晶', colors:['#0d150d','#1d3318']},
     {id:'fancy', name:'ファンシーピンク', desc:'可愛いのにホラーな狂気のギャップ', colors:['#ffe0ef','#ff8fc7']},
+    {id:'blood', name:'ブラッドムーン（限定）', desc:'ショップ限定。深紅の月夜テーマ', colors:['#1a0505','#b91c1c'], shopThemeId:'theme_blood'},
   ];
   const DIFFICULTIES = [
     {id:'easy', name:'EASY（簡単）', desc:'潜伏タイマー半減・早送り常時可・危険選択肢にヒント表示、初回は選び直しOK。制限時間なし。'},
@@ -432,7 +486,7 @@
   ];
 
   function defaultSettings(){
-    return { theme:'classic', masterVolume:0.7, seEnabled:true, horrorAudioEnabled:true, difficulty:'normal' };
+    return { theme:'classic', masterVolume:0.7, seEnabled:true, horrorAudioEnabled:true, difficulty:'normal', aiImageEnabled:false, geminiApiKey:'' };
   }
   function loadSettings(){
     try{
@@ -546,6 +600,112 @@
       case 'shadow': return `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#0a0a0a"/><ellipse cx="150" cy="140" rx="34" ry="60" fill="#000"/><ellipse cx="150" cy="70" rx="20" ry="22" fill="#000"/></svg>`;
       case 'static': return `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#111"/>${Array.from({length:60}).map(()=>`<rect x="${Math.random()*300}" y="${Math.random()*200}" width="${2+Math.random()*10}" height="1.5" fill="#888" opacity="${Math.random()*.6}"/>`).join('')}</svg>`;
       default: return '';
+    }
+  }
+
+  // ============================================================
+  // 4.5 スタンプ & ショップ
+  // ============================================================
+  const STAMPS = [
+    {id:'scream', emoji:'😱', pack:'free', reactions:['え、今それどころじゃないです…!!','ちょ、シリアスな時にそれ送ります…?','そのスタンプ的確すぎます…']},
+    {id:'melt', emoji:'🫠', pack:'free', reactions:['わかります…もう限界かも','ほんとそれ…','溶けそうです…']},
+    {id:'ghost', emoji:'👻', pack:'free', reactions:['いまその話マジでやめてください','それ、洒落になってないです','後ろ見て来るのやめてくださいよ…']},
+    {id:'pray', emoji:'🙏', pack:'free', reactions:['祈っといてください、本当に','頼みます、まじで祈ってて','お願いします…助けて…']},
+    {id:'flash', emoji:'🔦', pack:'packA', reactions:['電池切れそうです…','灯り消したくないんですけど','スタンプ送ってる場合ですか…?']},
+    {id:'coffee', emoji:'☕', pack:'packA', reactions:['こんな時にのんきですね','それどころじゃないんですけど','その余裕ください…']},
+    {id:'dog', emoji:'🐶', pack:'packA', reactions:['和むけど今めちゃ怖いです','可愛いけど状況わかってます?','ありがとうございます、和んだ…一瞬だけ']},
+    {id:'skull', emoji:'💀', pack:'packB', reactions:['フラグやめてください','縁起でもないです…','煽らないでくださいよ…']},
+    {id:'thumbsup', emoji:'👍', pack:'packB', reactions:['いいねじゃなくて、助けてください','それ返信になってないです','うん、まあ…ありがとうございます']},
+    {id:'laugh', emoji:'😂', pack:'packB', reactions:['こんな時に笑えるのすごいですね','ちょっとは緊張ほぐれました','笑いごとじゃないんですって…!']},
+  ];
+  const SHOP_ITEMS = [
+    {id:'packA', type:'stamps', name:'オカルト追加スタンプ', desc:'懐中電灯・コーヒー・わんこの3種が使えるようになります', cost:80, icon:'🔦'},
+    {id:'packB', type:'stamps', name:'煽り・パニックスタンプ', desc:'ガイコツ・いいね・爆笑の3種が使えるようになります', cost:80, icon:'💀'},
+    {id:'theme_blood', type:'theme', name:'ブラッドムーンテーマ', desc:'着せ替えに限定テーマ「ブラッドムーン」が追加されます', cost:150, icon:'🌑'},
+  ];
+
+  const SHOP_KEY = 'line-horror-shop-v1';
+  function defaultShop(){ return { coins:0, ownedPacks:[], ownedThemes:[] }; }
+  function loadShop(){
+    try{
+      const raw = localStorage.getItem(SHOP_KEY);
+      if(!raw) return defaultShop();
+      return Object.assign(defaultShop(), JSON.parse(raw));
+    }catch(e){ return defaultShop(); }
+  }
+  function persistShop(){ try{ localStorage.setItem(SHOP_KEY, JSON.stringify(shop)); }catch(e){} }
+  let shop = loadShop();
+  function availableStamps(){ return STAMPS.filter(s => s.pack==='free' || shop.ownedPacks.indexOf(s.pack)!==-1); }
+  function themeOwned(themeDef){ return !themeDef.shopThemeId || shop.ownedThemes.indexOf(themeDef.shopThemeId)!==-1; }
+
+  // ---- 画像生成キャッシュ（IndexedDB）— 一度生成した画像はAPIを二度と叩かない ----
+  const ImageCache = (function(){
+    let dbPromise = null;
+    function openDb(){
+      if(dbPromise) return dbPromise;
+      dbPromise = new Promise((resolve, reject)=>{
+        if(!window.indexedDB){ reject(new Error('no-idb')); return; }
+        const req = indexedDB.open('shine-image-cache', 1);
+        req.onupgradeneeded = ()=>{ req.result.createObjectStore('images'); };
+        req.onsuccess = ()=> resolve(req.result);
+        req.onerror = ()=> reject(req.error);
+      });
+      return dbPromise;
+    }
+    async function get(key){
+      try{
+        const db = await openDb();
+        return await new Promise((resolve)=>{
+          const tx = db.transaction('images','readonly');
+          const req = tx.objectStore('images').get(key);
+          req.onsuccess = ()=> resolve(req.result || null);
+          req.onerror = ()=> resolve(null);
+        });
+      }catch(e){ return null; }
+    }
+    async function set(key, dataUrl){
+      try{
+        const db = await openDb();
+        await new Promise((resolve)=>{
+          const tx = db.transaction('images','readwrite');
+          tx.objectStore('images').put(dataUrl, key);
+          tx.oncomplete = ()=> resolve();
+          tx.onerror = ()=> resolve();
+        });
+      }catch(e){ /* ignore */ }
+    }
+    return { get, set };
+  })();
+
+  // 実写風ポートレート／現場写真の生成。APIキー未設定・失敗時は null を返し、呼び出し側はSVGプレースホルダーのまま維持する
+  async function generateImage(cacheKey, prompt){
+    const cached = await ImageCache.get(cacheKey);
+    if(cached) return cached; // キャッシュがあれば絶対にAPIを叩かない
+
+    if(!settings.aiImageEnabled || !settings.geminiApiKey) return null;
+
+    try{
+      const resp = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=' + encodeURIComponent(settings.geminiApiKey),
+        {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({
+            instances:[{ prompt: prompt }],
+            parameters:{ sampleCount:1, aspectRatio:'3:4', outputOptions:{ mimeType:'image/jpeg', compressionQuality:70 } },
+          }),
+        }
+      );
+      if(!resp.ok) return null;
+      const data = await resp.json();
+      const b64 = data && data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded;
+      if(!b64) return null;
+      const dataUrl = 'data:image/jpeg;base64,' + b64;
+      await ImageCache.set(cacheKey, dataUrl);
+      return dataUrl;
+    }catch(e){
+      console.warn('image generation failed, falling back to placeholder', e);
+      return null;
     }
   }
 
@@ -850,8 +1010,14 @@
   function recordEnding(id, type){
     save.latestStatus[id] = type;
     let unlockedChar = null;
-    if(type==='success' && save.everCleared.indexOf(id)===-1){ save.everCleared.push(id); unlockedChar = unlockNext(); }
-    if(type==='bad' && save.everBad.indexOf(id)===-1){ save.everBad.push(id); }
+    if(type==='success' && save.everCleared.indexOf(id)===-1){
+      save.everCleared.push(id); unlockedChar = unlockNext();
+      shop.coins += 20; persistShop();
+    }
+    if(type==='bad' && save.everBad.indexOf(id)===-1){
+      save.everBad.push(id);
+      shop.coins += 8; persistShop();
+    }
     persist();
     return unlockedChar;
   }
@@ -862,6 +1028,7 @@
   const $ = (id)=>document.getElementById(id);
   const homeScreen = $('home-screen'), chatScreen = $('chat-screen');
   const threadList = $('thread-list'), friendsList = $('friends-list'), settingsList = $('settings-list');
+  const shopList = $('shop-list'), coinPill = $('coin-pill');
   const resultModal = $('result-modal'), warnModal = $('warn-modal');
   const timelineEl = $('timeline'), choicesEl = $('choices');
   const chatAvatar = $('chat-avatar'), chatName = $('chat-name'), chatStatus = $('chat-status');
@@ -869,6 +1036,7 @@
   const toastHolder = $('toast-holder');
   const fastToggle = $('fast-toggle');
   const diffChip = $('diff-chip');
+  const stampIconBtn = $('stamp-icon-btn'), stampPicker = $('stamp-picker'), stampGrid = $('stamp-grid'), stampPickerClose = $('stamp-picker-close');
 
   let currentScenario = null;
   let genToken = 0;
@@ -885,6 +1053,50 @@
   });
 
   // ------------------------------------------------------------
+  // スタンプピッカー
+  // ------------------------------------------------------------
+  function renderStampGrid(){
+    stampGrid.innerHTML = '';
+    STAMPS.forEach(st=>{
+      const owned = st.pack==='free' || shop.ownedPacks.indexOf(st.pack)!==-1;
+      const cell = document.createElement('div');
+      cell.className = 'stamp-item' + (owned ? '' : ' locked');
+      cell.textContent = owned ? st.emoji : '🔒';
+      if(owned) cell.addEventListener('click', ()=> sendStamp(st));
+      stampGrid.appendChild(cell);
+    });
+  }
+  stampIconBtn.addEventListener('click', ()=>{
+    if(!currentScenario) return;
+    renderStampGrid();
+    choicesEl.classList.remove('show');
+    stampPicker.classList.toggle('show');
+  });
+  stampPickerClose.addEventListener('click', ()=> stampPicker.classList.remove('show'));
+
+  async function sendStamp(stamp){
+    stampPicker.classList.remove('show');
+    if(!currentScenario) return;
+    const myToken = genToken;
+    SoundEngine.send();
+    await appendMeStamp(stamp.emoji, myToken);
+    if(myToken !== genToken) return;
+    await wait(400);
+    if(myToken !== genToken) return;
+    setChatStatus('入力中...', 'typing');
+    showTyping(true);
+    await wait(typingDelay());
+    if(myToken !== genToken){ showTyping(false); return; }
+    showTyping(false);
+    setChatStatus('オンライン');
+    const reactions = stamp.reactions || ['…'];
+    const text = reactions[Math.floor(Math.random()*reactions.length)];
+    appendThemMessage({sender:'them', text});
+    playSound('receive');
+    scrollToBottom();
+  }
+
+  // ------------------------------------------------------------
   // タブナビゲーション
   // ------------------------------------------------------------
   document.querySelectorAll('.nav-btn').forEach(btn=>{
@@ -894,6 +1106,7 @@
       btn.classList.add('active');
       $('panel-'+btn.dataset.tab).classList.add('active');
       if(btn.dataset.tab==='friends') renderFriends();
+      if(btn.dataset.tab==='shop') renderShop();
       if(btn.dataset.tab==='settings') renderSettings();
     });
   });
@@ -964,6 +1177,50 @@
   }
 
   // ------------------------------------------------------------
+  // ショップタブ
+  // ------------------------------------------------------------
+  function renderShop(){
+    coinPill.textContent = '🪙 ' + shop.coins;
+    shopList.innerHTML = '';
+    const hint = document.createElement('div');
+    hint.className = 'shop-hint';
+    hint.textContent = 'コインは救出成功（+20）・BAD END回収（+8）で貯まります。トーク画面のスタンプアイコンから使えるスタンプが増えたり、限定テーマが解放されます。';
+    shopList.appendChild(hint);
+
+    const section = document.createElement('div');
+    section.className = 'shop-section';
+    shopList.appendChild(section);
+
+    SHOP_ITEMS.forEach(item=>{
+      const owned = item.type==='stamps' ? shop.ownedPacks.indexOf(item.id)!==-1 : shop.ownedThemes.indexOf(item.id)!==-1;
+      const row = document.createElement('div');
+      row.className = 'shop-item';
+      const canAfford = shop.coins >= item.cost;
+      const btnCls = owned ? 'owned' : (canAfford ? '' : 'disabled');
+      const btnLabel = owned ? '解放済み' : (item.cost + '🪙');
+      row.innerHTML = `
+        <div class="shop-item-icon">${item.icon}</div>
+        <div class="shop-item-body">
+          <div class="shop-item-name">${item.name}</div>
+          <div class="shop-item-desc">${item.desc}</div>
+        </div>
+        <button class="shop-buy-btn ${btnCls}" ${owned || !canAfford ? 'disabled' : ''}>${btnLabel}</button>
+      `;
+      if(!owned){
+        row.querySelector('.shop-buy-btn').addEventListener('click', ()=>{
+          if(shop.coins < item.cost) return;
+          shop.coins -= item.cost;
+          if(item.type==='stamps') shop.ownedPacks.push(item.id);
+          else shop.ownedThemes.push(item.id);
+          persistShop();
+          renderShop();
+        });
+      }
+      section.appendChild(row);
+    });
+  }
+
+  // ------------------------------------------------------------
   // 設定タブ
   // ------------------------------------------------------------
   function renderSettings(){
@@ -995,6 +1252,19 @@
         <div class="difficulty-cards" id="diff-cards"></div>
       </div>
       <div class="settings-section">
+        <div class="settings-section-title">AI画像生成（実験的）</div>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">実写風の場面写真を生成</div><div class="settings-row-sub">未設定時は自動生成SVGのまま表示されます</div></div>
+        <label class="switch"><input type="checkbox" id="ai-image-toggle" ${settings.aiImageEnabled?'checked':''}><span class="switch-track"></span><span class="switch-thumb"></span></label>
+      </div>
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;border-bottom:none;">
+        <div class="settings-row-label" style="margin-bottom:6px;">APIキー（このブラウザにのみ保存されます）</div>
+        <input type="password" id="gemini-key-input" placeholder="ここに貼り付け" value="${escapeHtml(settings.geminiApiKey)}"
+          style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--list-border);background:rgba(255,255,255,.05);color:var(--list-text);font-size:12px;font-family:inherit;">
+        <div class="settings-row-sub" style="margin-top:6px;">公開されたゲームのコード自体には鍵を埋め込みません。ここに入力した鍵は、あなたのブラウザのlocalStorageだけに保存され、共有・コミットされることはありません。</div>
+      </div>
+      <div class="settings-section">
         <div class="settings-section-title">データ管理</div>
         <button class="danger-btn" id="reset-progress-btn">救出記録とバッドエンド記録をリセットする</button>
       </div>
@@ -1002,15 +1272,21 @@
 
     const themeGrid = $('theme-grid');
     THEMES.forEach(t=>{
+      const owned = themeOwned(t);
       const card = document.createElement('button');
-      card.className = 'theme-card' + (settings.theme===t.id ? ' selected' : '');
+      card.className = 'theme-card' + (settings.theme===t.id ? ' selected' : '') + (owned ? '' : ' locked-theme');
+      card.style.opacity = owned ? '1' : '.5';
       card.innerHTML = `
         <div class="theme-swatch"><span style="background:${t.colors[0]}"></span><span style="background:${t.colors[1]}"></span></div>
-        <div class="theme-card-name">${t.name}</div>
+        <div class="theme-card-name">${owned ? t.name : t.name + '（ショップで解放）'}</div>
         <div class="theme-card-desc">${t.desc}</div>`;
-      card.addEventListener('click', ()=>{
-        settings.theme = t.id; persistSettings(); applyTheme(); renderSettings();
-      });
+      if(owned){
+        card.addEventListener('click', ()=>{
+          settings.theme = t.id; persistSettings(); applyTheme(); renderSettings();
+        });
+      } else {
+        card.disabled = true;
+      }
       themeGrid.appendChild(card);
     });
 
@@ -1034,6 +1310,8 @@
     $('vol-slider').addEventListener('change', ()=>{ persistSettings(); SoundEngine.testPing(); });
     $('se-toggle').addEventListener('change', (e)=>{ settings.seEnabled = e.target.checked; persistSettings(); if(e.target.checked) SoundEngine.testPing(); });
     $('horror-toggle').addEventListener('change', (e)=>{ settings.horrorAudioEnabled = e.target.checked; persistSettings(); });
+    $('ai-image-toggle').addEventListener('change', (e)=>{ settings.aiImageEnabled = e.target.checked; persistSettings(); });
+    $('gemini-key-input').addEventListener('change', (e)=>{ settings.geminiApiKey = e.target.value.trim(); persistSettings(); });
 
     $('reset-progress-btn').addEventListener('click', ()=>{
       if(confirm('すべてのプレイ状況をリセットします。よろしいですか？')){
@@ -1064,7 +1342,7 @@
     showScreen(chatScreen);
   }
 
-  $('back-btn').addEventListener('click', ()=>{ genToken++; clearChoiceTimeout(); showScreen(homeScreen); });
+  $('back-btn').addEventListener('click', ()=>{ genToken++; clearChoiceTimeout(); stampPicker.classList.remove('show'); showScreen(homeScreen); });
 
   function handleCallTap(){
     SoundEngine.callEnd();
@@ -1080,6 +1358,7 @@
     timelineEl.innerHTML = '';
     choicesEl.classList.remove('show');
     choicesEl.innerHTML = '';
+    stampPicker.classList.remove('show');
     chatAvatar.style.background = currentScenario.color;
     chatAvatar.textContent = currentScenario.emoji;
     chatName.textContent = currentScenario.name;
@@ -1117,8 +1396,31 @@
     const row = document.createElement('div'); row.className='sys-row';
     let inner = '<div class="sys-inner">';
     if(msg.text) inner += `<span class="sys-text">${escapeHtml(msg.text)}</span>`;
-    if(msg.image){ inner += `<div class="eerie-frame">${eerieSvg(msg.image.kind)}</div>`; if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`; }
+    let frameId = null;
+    if(msg.image){
+      frameId = 'frame-' + Math.random().toString(36).slice(2);
+      inner += `<div class="eerie-frame" id="${frameId}">${eerieSvg(msg.image.kind)}</div>`;
+      if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`;
+    }
     inner += '</div>'; row.innerHTML = inner; timelineEl.appendChild(row);
+
+    // AI画像生成が有効なら、SVGプレースホルダーを裏で実写風画像に差し替える（キャッシュがあれば即時・APIは叩かない）
+    if(msg.image && settings.aiImageEnabled && currentScenario){
+      const cacheKey = 'scene_' + currentScenario.id + '_' + msg.image.kind;
+      const myToken = genToken;
+      const prompt = '不穏でリアルな深夜の日本の' + (msg.image.caption || msg.image.kind) + 'の写真。低照度、ドキュメンタリー風、ホラー演出、人物の顔は写さない。';
+      generateImage(cacheKey, prompt).then(dataUrl=>{
+        if(!dataUrl || myToken !== genToken) return;
+        const frame = document.getElementById(frameId);
+        if(!frame) return;
+        const img = document.createElement('img');
+        img.className = 'ai-photo';
+        img.src = dataUrl;
+        img.onload = ()=> img.classList.add('loaded');
+        frame.innerHTML = '';
+        frame.appendChild(img);
+      }).catch(()=>{ /* フォールバック: SVGのまま */ });
+    }
   }
   function appendThemMessage(msg){
     const time = nowLabel();
@@ -1140,6 +1442,19 @@
     if(label){ label.textContent='既読'; label.classList.add('is-read'); }
     playSound('readChime');
   }
+  async function appendMeStamp(emoji, myToken){
+    const time = nowLabel();
+    const row = document.createElement('div'); row.className='msg-row me';
+    const readId = 'read-' + Math.random().toString(36).slice(2);
+    row.innerHTML = `<div class="msg-wrap"><div class="bubble stamp-bubble">${emoji}</div><div class="msg-meta"><span class="read-label" id="${readId}">未読</span><span>${time}</span></div></div>`;
+    timelineEl.appendChild(row); scrollToBottom();
+    await wait(readDelay());
+    if(myToken !== genToken) return;
+    const label = document.getElementById(readId);
+    if(label){ label.textContent='既読'; label.classList.add('is-read'); }
+    playSound('readChime');
+  }
+
   function showTyping(show){
     let row = document.getElementById('typing-row');
     if(show){
@@ -1251,6 +1566,7 @@
   }
 
   function renderChoices(choices, myToken){
+    stampPicker.classList.remove('show');
     choicesEl.innerHTML = '';
 
     if(settings.difficulty === 'hard'){
