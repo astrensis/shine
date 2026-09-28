@@ -766,43 +766,47 @@
     emoji:'🌙', color:colorFor(0), startNodeId:'start',
     nodes:{
       start:{ messages:[
-          {sender:'them', text:'先輩起きてますか？'},
-          {sender:'them', text:'変な時間にすいません'},
-          {sender:'them', text:'うちの部屋のドア、さっきからずっとガチャガチャされてて…', effect:'shake'},
+          {sender:'them', text:'先輩、起きてますか？'},
+          {sender:'them', text:'こんな時間にほんとすいません'},
+          {sender:'them', text:'さっきから玄関の外で物音がして…'},
+          {sender:'them', text:'鍵穴のあたりを、ガチャガチャ触られてる気がするんです', effect:'shake'},
+          {sender:'them', text:'空耳だと思ったんですけど、もう5分くらい止まらなくて'},
+          {sender:'them', text:'怖くて、手が震えてます', effect:'shake'},
         ], choices:[
-          {label:'誰か確かめろ、声出してみろ', next:'c1_bad_voice', risk:'danger'},
-          {label:'絶対に声出すな。鍵はかかってるか？', next:'mid', risk:'safe'},
+          {label:'誰かいるのか、大声で聞いてみろ', next:'c1_bad_voice', risk:'danger'},
+          {label:'落ち着け。声は出すな。まず鍵が閉まってるか確認しろ', next:'mid', risk:'safe'},
         ] },
       c1_bad_voice:{ messages:[
-          {sender:'them', text:'……「誰ですか」って言っちゃいました', effect:'shake'},
+          {sender:'them', text:'……「誰ですか」って、言っちゃいました', effect:'shake'},
           {sender:'system', text:'ガチャガチャという音が、ピタリと止まる', effect:'flash'},
-          {sender:'them', text:'…来た人、今ドアの前で笑ってる声が聞こえます', glitch:true},
-        ], autoNext:'end_bad_voice', autoDelay:1400 },
+          {sender:'them', text:'……'},
+          {sender:'them', text:'今、ドアの向こうで低く笑ってる声が聞こえます', glitch:true},
+          {sender:'them', text:'せんぱ', glitch:true},
+        ], autoNext:'end_bad_voice', autoDelay:1600 },
       end_bad_voice:{ messages:[], ending:{type:'bad', title:'通信途絶',
-        desc:'声を出したことで、ドアの向こうの何者かはアオイの存在を確信した。それを最後に、返信は途絶えた。'} },
+        desc:'声を出したことで、ドアの向こうの何者かはアオイの存在を確信した。低い笑い声を最後に、返信は途絶えた。'} },
+
       mid:{ messages:[
           {sender:'me', text:'鍵は閉まってるか確認して。声は絶対出すな'},
-          {sender:'them', text:'鍵は閉まってます'},
-          {sender:'them', text:'でもドアスコープの覗き穴、外から指で塞がれてる気がして…', effect:'shake'},
-          {sender:'system', text:'', image:{kind:'doorscope', caption:'ドアスコープ越しに見えたもの'}, effect:'shake'},
+          {sender:'them', text:'……待ってください'},
+          {sender:'them', text:'閉まってます、大丈夫です'},
+          {sender:'them', text:'でも物音、まだ続いてます'},
+          {sender:'them', text:'なんか、工具みたいな金属音も混じってる気がして…', effect:'shake'},
         ], choices:[
-          {label:'息殺して覗き穴から外見ろ', next:'reveal'},
-          {label:'ドアから離れてクローゼットに隠れろ', next:'reveal'},
+          {label:'そのまま息を潜めて、ドアスコープをそっと覗かせろ', next:'peek_path', risk:'safe'},
+          {label:'今のうちに110番通報させろ', next:'police_path'},
         ] },
-      reveal:{ messages:[
-          {sender:'them', text:'…見ました'},
-          {sender:'them', text:'誰もいない…って思ったら…'},
-          {sender:'them', text:'ポストの投函口の隙間から、男がこっち見上げて笑ってる', effect:'flash'},
+
+      peek_path:{ messages:[
+          {sender:'them', text:'……覗いてみます'},
+          {sender:'system', text:'', image:{kind:'doorscope', caption:'ドアスコープ越しに見えたもの'}, effect:'shake'},
+          {sender:'them', text:'誰もいない…って、思ったら'},
+          {sender:'them', text:'ポストの投函口の隙間から、こっち見上げて笑ってる目と目が合いました', effect:'flash'},
           {sender:'system', text:'', image:{kind:'eyes', caption:'郵便受けの隙間から見上げる男'}, effect:'shake'},
-          {sender:'them', text:'声出したら殺される…！押入れの奥に隠れます、音立てられないから返事待って'},
-          {type:'actionWait', seconds:30, label:'アオイが息を潜めています…'},
-        ], autoNext:'climax' },
-      climax:{ messages:[
-          {sender:'them', text:'…外で何か工具の音がする', effect:'shake'},
-          {sender:'them', text:'チェーン外そうとしてる！！どうすればいいですか！？', effect:'shake-hard'},
+          {sender:'them', text:'こっちに気づかれた…どうしよう、声出したら殺される'},
         ], choices:[
-          {label:'ベランダから隣の部屋に助け求めろ！', next:'end_bad_balcony', risk:'danger'},
-          {label:'電気消したまま110番してスマホを布団で覆え！', next:'end_survive', risk:'safe'},
+          {label:'押入れの奥に隠れて、息を潜めさせろ', next:'hide_path', risk:'safe'},
+          {label:'今すぐベランダから隣の部屋に助けを求めさせろ', next:'end_bad_balcony', risk:'danger'},
         ] },
       end_bad_balcony:{ messages:[
           {sender:'them', text:'ベランダに出ます…！'},
@@ -810,16 +814,84 @@
           {sender:'them', text:'あ', glitch:true},
           {sender:'them', text:'はいってき', glitch:true},
           {sender:'them', text:'……', glitch:true},
-        ], autoNext:'end_bad_final', autoDelay:1600 },
-      end_bad_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        ], autoNext:'end_bad_balcony_final', autoDelay:1600 },
+      end_bad_balcony_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
         desc:'ベランダに出た隙に、男は玄関のチェーンを断ち切って侵入した。既読がついたまま、アオイの返信は途絶えた。'} },
+
+      hide_path:{ messages:[
+          {sender:'them', text:'押入れの奥に隠れました…暗いです'},
+          {type:'actionWait', seconds:25, label:'アオイが押入れの中で息を潜めています…'},
+          {sender:'them', text:'……外の音、止まった気がします'},
+          {sender:'them', text:'でも今度は、玄関の鍵がゆっくり回される音が', effect:'shake-hard', sound:'noise'},
+        ], choices:[
+          {label:'物音が完全に止むまで、絶対に動かず待たせろ', next:'wait_out', risk:'safe'},
+          {label:'恐怖に耐えきれず、押入れから飛び出させろ', next:'end_bad_scream', risk:'danger'},
+        ] },
+      end_bad_scream:{ messages:[
+          {sender:'them', text:'もう無理です…出ます'},
+          {sender:'system', text:'押入れの戸が、外から勢いよく開けられる', sound:'noise', effect:'shake-hard'},
+          {sender:'them', text:'きゃ', glitch:true},
+        ], autoNext:'end_bad_scream_final', autoDelay:1600 },
+      end_bad_scream_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'恐怖に耐えきれず飛び出してしまったアオイ。侵入者と鉢合わせた悲鳴を最後に、通信は途絶えた。'} },
+
+      wait_out:{ messages:[
+          {sender:'them', text:'……動きません、じっとしてます'},
+          {sender:'them', text:'足音、部屋の中を歩き回ってます'},
+          {sender:'them', text:'…遠ざかっていく…？'},
+          {sender:'them', text:'玄関の方に戻っていったみたいです'},
+        ], autoNext:'climax', autoDelay:1200 },
+
+      police_path:{ messages:[
+          {sender:'them', text:'110番、しました'},
+          {sender:'them', text:'「今向かいます」って言われたんですけど…'},
+          {sender:'them', text:'物音、まだ続いてます。工具でこじ開けようとしてるっぽい', effect:'shake'},
+          {sender:'them', text:'サイレン、まだ遠いです…怖い'},
+        ], choices:[
+          {label:'警察が来るまで、音を立てず待たせろ', next:'wait_police', risk:'safe'},
+          {label:'不安で我慢できず、インターホンで応答させろ', next:'end_bad_intercom', risk:'danger'},
+        ] },
+      end_bad_intercom:{ messages:[
+          {sender:'them', text:'イ、インターホン出ました…「はい」って'},
+          {sender:'system', text:'応答した瞬間、外の物音がピタリと止む', effect:'flash'},
+          {sender:'them', text:'「……開けてくれませんか」って、知らない男の声が', glitch:true},
+          {sender:'them', text:'せんぱ', glitch:true},
+        ], autoNext:'end_bad_intercom_final', autoDelay:1600 },
+      end_bad_intercom_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'インターホンに応答したことで、男は在室と応答の意思を確信した。低い声を最後に、アオイの反応は途絶えた。'} },
+
+      wait_police:{ messages:[
+          {sender:'them', text:'わかりました、声出さずに待ちます'},
+          {type:'actionWait', seconds:20, label:'アオイが息を潜めて警察を待っています…'},
+          {sender:'them', text:'サイレン、近づいてきてます…！'},
+          {sender:'system', text:'玄関の外で、慌てて逃げていく足音が響く', effect:'shake-hard', sound:'noise'},
+        ], autoNext:'climax', autoDelay:1200 },
+
+      climax:{ messages:[
+          {sender:'them', text:'……静かになりました'},
+          {sender:'them', text:'パトカーの光が窓から差し込んでます'},
+          {sender:'them', text:'でも、本当に警察かどうか、ドア越しじゃわからなくて', effect:'shake'},
+          {sender:'them', text:'開けていいですか…？どうしよう'},
+        ], choices:[
+          {label:'鍵はかけたまま、警察に声だけで身分証を確認させろ', next:'end_survive', risk:'safe'},
+          {label:'安心して、すぐにドアを開けさせろ', next:'end_bad_open', risk:'danger'},
+        ] },
+      end_bad_open:{ messages:[
+          {sender:'them', text:'ほっとして、鍵開けちゃいました'},
+          {sender:'system', text:'ドアの外に立っていたのは、警察官ではなく、逃げ遅れた男だった', effect:'flash'},
+          {sender:'them', text:'きゃ', glitch:true},
+        ], autoNext:'end_bad_open_final', autoDelay:1600 },
+      end_bad_open_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'安全確認をせずドアを開けてしまい、逃げ遅れていた侵入者と鉢合わせした。それを最後に、通信は途絶えた。'} },
+
       end_survive:{ messages:[
-          {sender:'them', text:'電気消したまま110番しました…スマホ、布団で覆ってます'},
-          {sender:'system', text:'遠くからパトカーのサイレンが近づいてくる'},
-          {sender:'them', text:'先輩…警察来ました…！震えが止まりません…ありがとうございました…！'},
+          {sender:'them', text:'鍵はかけたまま、「身分証見せてください」って言いました'},
+          {sender:'them', text:'ちゃんと警察の方でした…！'},
+          {sender:'them', text:'不審者、近くの路地で確保されたそうです'},
+          {sender:'them', text:'先輩のおかげです…ほんとにありがとうございました', sound:'receive'},
         ], autoNext:'end_survive_final', autoDelay:1400 },
       end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
-        desc:'冷静な指示で声を抑え続けたアオイ。暗闇の中の通報が功を奏し、警察が不審者を確保した。'} },
+        desc:'冷静な指示で声を抑え続け、最後まで警戒を怠らなかったアオイ。身分確認という一手が功を奏し、不審者は無事確保された。'} },
     }
   };
 
@@ -828,28 +900,31 @@
     emoji:'🚗', color:colorFor(1), startNodeId:'start',
     nodes:{
       start:{ messages:[
-          {sender:'them', text:'おい助けてくれ'},
-          {sender:'them', text:'山道で車止まった'},
-          {sender:'them', text:'旧水草トンネルの手前なんだけど、霧で前後が全く見えん', effect:'shake'},
+          {sender:'them', text:'おい、助けてくれ'},
+          {sender:'them', text:'山道で車、完全に止まった'},
+          {sender:'them', text:'旧水草トンネルの手前なんだけど、霧がヤバい。前も後ろも見えん', effect:'shake'},
           {sender:'system', text:'', image:{kind:'tunnel', caption:'霧に沈む封鎖されたトンネル'}},
+          {sender:'them', text:'てか、なんか外に人影みたいなのが立ってる気がする'},
+          {sender:'them', text:'見間違いだよな…？', effect:'shake'},
         ], choices:[
-          {label:'ハザード焚いてボンネット開けてみろ', next:'c1_bad_hood', risk:'danger'},
+          {label:'ハザード焚いて外に出て確認しろ', next:'c1_bad_hood', risk:'danger'},
           {label:'絶対車から出るな。ドアロックしろ', next:'mid', risk:'safe'},
         ] },
       c1_bad_hood:{ messages:[
           {sender:'them', text:'外出ます…ハザード点けて'},
           {sender:'system', text:'霧の向こうで何かが動く気配', effect:'shake'},
           {sender:'them', text:'…足音、複数、聞こえる', glitch:true},
-        ], autoNext:'end_bad_hood', autoDelay:1400 },
+          {sender:'them', text:'囲まれてる…？', glitch:true},
+        ], autoNext:'end_bad_hood', autoDelay:1600 },
       end_bad_hood:{ messages:[], ending:{type:'bad', title:'通信途絶',
         desc:'車外に出た瞬間、霧の中から複数の足音が近づいてきた。それを最後に、タクヤの反応は途絶えた。'} },
+
       mid:{ messages:[
           {sender:'them', text:'言われた通り鍵かけた'},
           {sender:'them', text:'てかナビのGPS狂って画面がチカチカしてる', glitch:true, effect:'shake'},
           {sender:'them', text:'おい嘘だろ'},
           {sender:'them', text:'トンネルの出口側から誰か歩いてくる', effect:'shake'},
-          {sender:'them', text:'白っぽい服着た女だ'},
-          {sender:'them', text:'裸足で霧の中歩いてる…', effect:'shake-hard'},
+          {sender:'them', text:'白っぽい服着た女だ。裸足で霧の中歩いてる…', effect:'shake-hard'},
         ], choices:[
           {label:'クラクション鳴らして威嚇しろ！', next:'end_bad_horn', risk:'danger'},
           {label:'ヘッドライトも社内灯も全部消せ！伏せろ！', next:'hide', risk:'safe'},
@@ -861,16 +936,15 @@
         ], autoNext:'end_bad_horn_final', autoDelay:1600 },
       end_bad_horn_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
         desc:'クラクションが女を呼び寄せた。フロントガラスに何かが飛び乗る音を最後に、通信は途絶えた。'} },
+
       hide:{ messages:[
           {sender:'them', text:'消した…！フロントガラスのすぐ横通っていく…息止める…'},
           {type:'actionWait', seconds:25, label:'タクヤが息を潜めています…'},
-        ], autoNext:'climax' },
-      climax:{ messages:[
           {sender:'them', text:'通り過ぎた…'},
           {sender:'them', text:'でも車の後ろで止まった', effect:'shake'},
           {sender:'them', text:'トランクをコン、コン、って叩いてる…', effect:'shake-hard'},
         ], choices:[
-          {label:'今だ、エンジンかけ直してアクセル踏め！', next:'end_survive', risk:'safe'},
+          {label:'今だ、エンジンかけ直してアクセル踏め！', next:'engine_start', risk:'safe'},
           {label:'そのまま女が立ち去るまで待て', next:'end_bad_wait', risk:'danger'},
         ] },
       end_bad_wait:{ messages:[
@@ -881,13 +955,32 @@
         ], autoNext:'end_bad_wait_final', autoDelay:1600 },
       end_bad_wait_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
         desc:'待ち続けた結果、静寂の後に運転席の窓へ手が叩きつけられた。文字化けしたメッセージを最後に、通信は途絶えた。'} },
-      end_survive:{ messages:[
+
+      engine_start:{ messages:[
           {sender:'them', text:'エンジンかかった！アクセル踏む！！'},
           {sender:'system', text:'バックミラーに、何百もの手形が浮かび上がる', effect:'shake-hard'},
-          {sender:'them', text:'逃げ切れた…街の明かり見えた…マジで死ぬかと思った…！'},
+          {sender:'them', text:'うわ、なんだこれ'},
+          {sender:'them', text:'前方の霧の中に、また何か立ってる気がする…！', effect:'shake'},
+        ], choices:[
+          {label:'ブレーキを踏まず、目をつぶって突っ切れ！', next:'end_survive', risk:'safe'},
+          {label:'反射的に急ブレーキを踏んで確認しろ', next:'end_bad_brake', risk:'danger'},
+        ] },
+      end_bad_brake:{ messages:[
+          {sender:'them', text:'思わずブレーキ踏んじゃった…'},
+          {sender:'system', text:'止まった瞬間、フロントガラスのすぐ向こうに、女の顔が映る', effect:'flash'},
+          {sender:'them', text:'ぎゃ', glitch:true},
+        ], autoNext:'end_bad_brake_final', autoDelay:1600 },
+      end_bad_brake_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'一瞬の恐怖で足を止めてしまったタクヤ。フロントガラス越しに映った顔を最後に、通信は途絶えた。'} },
+
+      end_survive:{ messages:[
+          {sender:'them', text:'目、つぶってそのままアクセル踏み切った！'},
+          {sender:'system', text:'何かにぶつかった軽い衝撃。でも車はそのまま走り抜ける'},
+          {sender:'them', text:'街の明かりが見えた…！抜けた…！'},
+          {sender:'them', text:'マジで死ぬかと思った…ありがとう、マジで助かった'},
         ], autoNext:'end_survive_final', autoDelay:1400 },
       end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
-        desc:'女がトランクに気を取られた一瞬の隙を突き、タクヤは急発進でトンネルを脱出した。'} },
+        desc:'女がトランクに気を取られた一瞬の隙を突き、タクヤは恐怖に負けず急発進でトンネルを脱出した。'} },
     }
   };
 
@@ -899,6 +992,7 @@
           {sender:'them', text:'店長、まだ起きてますか？'},
           {sender:'them', text:'深夜の棚卸し終わって施錠したんですけど'},
           {sender:'them', text:'店内から変な音します', effect:'shake'},
+          {sender:'them', text:'誰もいないはずなのに、棚の方でガサガサって'},
         ], choices:[
           {label:'防犯カメラのモニター見ろ', next:'mid', risk:'safe'},
           {label:'気のせいだろ、早く帰れ', next:'c1_bad_ignore', risk:'danger'},
@@ -907,14 +1001,17 @@
           {sender:'them', text:'…そうします、帰りますね'},
           {sender:'system', text:'裏口のドアが、外から開かれる音', sound:'noise', effect:'shake-hard'},
           {sender:'them', text:'え', glitch:true},
-        ], autoNext:'end_bad_ignore', autoDelay:1400 },
+          {sender:'them', text:'なんで開いて', glitch:true},
+        ], autoNext:'end_bad_ignore', autoDelay:1600 },
       end_bad_ignore:{ messages:[], ending:{type:'bad', title:'通信途絶',
         desc:'警戒を促さなかったことで、リョウは無防備なまま裏口へ向かってしまった。それを最後に返信は途絶えた。'} },
+
       mid:{ messages:[
           {sender:'them', text:'カメラ見ました'},
           {sender:'system', text:'', image:{kind:'cctv', caption:'防犯カメラ：酒コーナー付近'}},
           {sender:'them', text:'奥のお酒コーナーの死角に、黒いコート着た奴がずっと立ってます', effect:'shake'},
           {sender:'them', text:'昼間から店内に潜んでたっぽい…', effect:'shake-hard'},
+          {sender:'them', text:'どうしよう、店長、どうすればいいですか', effect:'shake'},
         ], choices:[
           {label:'バックヤードの事務所に内鍵かけて閉じこもれ', next:'hide', risk:'safe'},
           {label:'バット持って正面から外へ出ろ', next:'end_bad_bat', risk:'danger'},
@@ -926,33 +1023,48 @@
         ], autoNext:'end_bad_bat_final', autoDelay:1600 },
       end_bad_bat_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
         desc:'正面から立ち向かったリョウ。しかし暗闇の中で照明が落ち、それを最後に通信は途絶えた。'} },
+
       hide:{ messages:[
-          {sender:'them', text:'事務所入って鍵閉めました。外の様子伺ってきます'},
-          {type:'actionWait', seconds:30, label:'リョウが事務所に立てこもっています…'},
-        ], autoNext:'climax' },
-      climax:{ messages:[
-          {sender:'them', text:'事務所のドアノブがガチャガチャされてる', effect:'shake'},
-          {sender:'them', text:'鍵開けようとしてる', effect:'shake-hard'},
-          {sender:'them', text:'どうしよう…', effect:'shake-hard'},
+          {sender:'them', text:'事務所入って鍵閉めました'},
+          {sender:'them', text:'ドアノブ、ガチャガチャ言われてます', effect:'shake'},
+          {sender:'them', text:'諦めずに何かでこじ開けようとしてる…', effect:'shake-hard'},
         ], choices:[
-          {label:'警報ベルのボタン押して裏口の非常扉から逃げろ！', next:'end_survive', risk:'safe'},
+          {label:'警報ベルのボタン押して裏口の非常扉から逃げろ！', next:'alarm_path', risk:'safe'},
           {label:'ロッカーの中に隠れてやり過ごせ！', next:'end_bad_locker', risk:'danger'},
         ] },
       end_bad_locker:{ messages:[
           {sender:'them', text:'ロッカーの中に隠れます…'},
           {sender:'system', text:'ロッカーの扉の隙間から、外を覗く目と目が合う', effect:'flash'},
+          {sender:'system', text:'', image:{kind:'eyes', caption:'ロッカーの隙間から覗き込む目'}, effect:'flash'},
           {sender:'them', text:'みーつけた', glitch:true},
         ], autoNext:'end_bad_locker_final', autoDelay:1600 },
       end_bad_locker_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
         desc:'ロッカーの隙間から、侵入者と目が合ってしまった。「みーつけた」のメッセージを最後に、通信は途絶えた。'} },
-      end_survive:{ messages:[
+
+      alarm_path:{ messages:[
           {sender:'them', text:'警報ベル押します…！'},
           {sender:'system', text:'けたたましい警報音が店内に響き渡る', sound:'alarm', effect:'shake-hard'},
           {sender:'them', text:'今のうちに裏口の非常扉から出ます！'},
-          {sender:'them', text:'外に出ました…通報します。ありがとうございました…！'},
+          {sender:'system', text:'非常口のドアが開く音。外の冷たい空気が流れ込む'},
+        ], choices:[
+          {label:'そのまま道路まで一気に走り抜けろ！', next:'end_survive', risk:'safe'},
+          {label:'一度立ち止まって店内を振り返らせろ', next:'end_bad_lookback', risk:'danger'},
+        ] },
+      end_bad_lookback:{ messages:[
+          {sender:'them', text:'……あれ、何もいない？振り返ってみます'},
+          {sender:'me', text:'止まるな！！振り返らず走れ！！'},
+          {sender:'system', text:'警報音の向こうから、何かがこちらに向かって走ってくる足音', effect:'shake-hard', sound:'noise'},
+          {sender:'them', text:'ひ', glitch:true},
+        ], autoNext:'end_bad_lookback_final', autoDelay:1600 },
+      end_bad_lookback_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'脱出まであと一歩のところで足を止め、振り返ってしまったリョウ。警報の中、連絡は途絶えた。'} },
+
+      end_survive:{ messages:[
+          {sender:'them', text:'道路に出ました…！人が、いる…！助かった…'},
+          {sender:'them', text:'通報します。ありがとう、マジで'},
         ], autoNext:'end_survive_final', autoDelay:1400 },
       end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
-        desc:'大音量の非常ベルに驚いた不審者は逃走。リョウは裏口の非常扉から無事脱出し、通報に成功した。'} },
+        desc:'大音量の非常ベルに驚いた不審者は逃走。リョウは振り返らず道路まで走り抜き、無事に脱出した。'} },
     }
   };
 
