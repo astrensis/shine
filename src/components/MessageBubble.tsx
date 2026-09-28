@@ -49,10 +49,13 @@ export function MessageBubble({
     >
       {!isMe && (
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 mr-2 mt-auto shadow"
-          style={{ backgroundColor: character.avatarColor }}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 mr-2 mt-auto shadow overflow-hidden bg-cover bg-center"
+          style={{
+            backgroundColor: character.avatarColor,
+            backgroundImage: character.avatarImage ? `url(${character.avatarImage})` : undefined,
+          }}
         >
-          {character.avatarEmoji}
+          {!character.avatarImage && character.avatarEmoji}
         </div>
       )}
       <div

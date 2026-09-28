@@ -69,10 +69,15 @@ export function ChatList({
             >
               <div className="relative shrink-0">
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow"
-                  style={{ backgroundColor: scenario.character.avatarColor }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow overflow-hidden bg-cover bg-center"
+                  style={{
+                    backgroundColor: scenario.character.avatarColor,
+                    backgroundImage: scenario.character.avatarImage
+                      ? `url(${scenario.character.avatarImage})`
+                      : undefined,
+                  }}
                 >
-                  {scenario.character.avatarEmoji}
+                  {!scenario.character.avatarImage && scenario.character.avatarEmoji}
                 </div>
                 {isUnread && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[9px] text-white flex items-center justify-center font-bold border-2 border-[#0f1115]">

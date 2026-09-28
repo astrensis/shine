@@ -588,6 +588,25 @@
   // ============================================================
   // 4. 不穏な画像プレースホルダー
   // ============================================================
+  const AVATAR_PHOTOS = {
+    char01: 'images/avatars/aoi.jpg',
+    char02: 'images/avatars/takuya.jpg',
+    char03: 'images/avatars/ryo.jpg',
+  };
+  const SCENE_PHOTOS = {
+    doorscope: 'images/scenes/doorscope.jpg',
+    eyes: 'images/scenes/eyes.jpg',
+    cctv: 'images/scenes/cctv.jpg',
+    handprints: 'images/scenes/handprints.jpg',
+    tunnel: 'images/scenes/tunnel.jpg',
+  };
+  function avatarStyleAndInner(sc){
+    const photo = sc && AVATAR_PHOTOS[sc.id];
+    if(photo){
+      return { style: `background-image:url('${photo}');background-size:cover;background-position:center;background-color:${sc.color}`, inner: '' };
+    }
+    return { style: `background:${sc ? sc.color : '#333'}`, inner: sc ? sc.emoji : '' };
+  }
   function eerieSvg(kind){
     const grad = (id,c1,c2)=>`<radialGradient id="${id}" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></radialGradient>`;
     switch(kind){
@@ -765,6 +784,7 @@
           {sender:'me', text:'鍵は閉まってるか確認して。声は絶対出すな'},
           {sender:'them', text:'鍵は閉まってます'},
           {sender:'them', text:'でもドアスコープの覗き穴、外から指で塞がれてる気がして…', effect:'shake'},
+          {sender:'system', text:'', image:{kind:'doorscope', caption:'ドアスコープ越しに見えたもの'}, effect:'shake'},
         ], choices:[
           {label:'息殺して覗き穴から外見ろ', next:'reveal'},
           {label:'ドアから離れてクローゼットに隠れろ', next:'reveal'},
@@ -811,6 +831,7 @@
           {sender:'them', text:'おい助けてくれ'},
           {sender:'them', text:'山道で車止まった'},
           {sender:'them', text:'旧水草トンネルの手前なんだけど、霧で前後が全く見えん', effect:'shake'},
+          {sender:'system', text:'', image:{kind:'tunnel', caption:'霧に沈む封鎖されたトンネル'}},
         ], choices:[
           {label:'ハザード焚いてボンネット開けてみろ', next:'c1_bad_hood', risk:'danger'},
           {label:'絶対車から出るな。ドアロックしろ', next:'mid', risk:'safe'},
@@ -855,6 +876,7 @@
       end_bad_wait:{ messages:[
           {sender:'system', text:'トランクの音が、急に止む', effect:'flash'},
           {sender:'system', text:'運転席の窓に、血塗れの手が叩きつけられる', sound:'noise', effect:'shake-hard'},
+          {sender:'system', text:'', image:{kind:'handprints', caption:'窓ガラスに無数の血の手形'}, effect:'flash'},
           {sender:'them', text:'$#見つか%った', glitch:true},
         ], autoNext:'end_bad_wait_final', autoDelay:1600 },
       end_bad_wait_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
@@ -1151,9 +1173,10 @@
       const btn = document.createElement('button');
       btn.className = 'thread';
       if(!unlocked) btn.style.opacity = '.45';
+      const av = avatarStyleAndInner(sc);
       btn.innerHTML = `
-        <div class="thread-avatar ${unlocked?'':'locked'}" style="background:${sc.color}">
-          ${unlocked ? sc.emoji : '🔒'}
+        <div class="thread-avatar ${unlocked?'':'locked'}" style="${unlocked ? av.style : 'background:'+sc.color}">
+          ${unlocked ? av.inner : '🔒'}
           ${unlocked && !status ? '<span class="unread-dot">1</span>' : ''}
         </div>
         <div class="thread-body">
@@ -1190,8 +1213,9 @@
         const btn = document.createElement('button');
         btn.className = 'thread';
         if(!unlocked) btn.style.opacity = '.45';
+        const av = avatarStyleAndInner(sc);
         btn.innerHTML = `
-          <div class="thread-avatar ${unlocked?'':'locked'}" style="background:${sc.color}">${unlocked ? sc.emoji : '🔒'}</div>
+          <div class="thread-avatar ${unlocked?'':'locked'}" style="${unlocked ? av.style : 'background:'+sc.color}">${unlocked ? av.inner : '🔒'}</div>
           <div class="thread-body">
             <div class="thread-top"><span class="thread-name">${unlocked ? sc.name : '???'}</span>${badgeHtml(unlocked, status)}</div>
             <div class="thread-sub">${unlocked ? sc.title : '救出成功すると新たなSOSが届きます'}</div>
@@ -1404,8 +1428,9 @@
     choicesEl.classList.remove('show');
     choicesEl.innerHTML = '';
     stampPicker.classList.remove('show');
-    chatAvatar.style.background = currentScenario.color;
-    chatAvatar.textContent = currentScenario.emoji;
+    { const av = avatarStyleAndInner(currentScenario);
+      chatAvatar.style.cssText = av.style;
+      chatAvatar.textContent = av.inner; }
     chatName.textContent = currentScenario.name;
     setChatStatus('オンライン');
 
@@ -1442,15 +1467,20 @@
     let inner = '<div class="sys-inner">';
     if(msg.text) inner += `<span class="sys-text">${escapeHtml(msg.text)}</span>`;
     let frameId = null;
+    const scenePhoto = msg.image && SCENE_PHOTOS[msg.image.kind];
     if(msg.image){
       frameId = 'frame-' + Math.random().toString(36).slice(2);
-      inner += `<div class="eerie-frame" id="${frameId}">${eerieSvg(msg.image.kind)}</div>`;
+      const frameContent = scenePhoto
+        ? `<img class="ai-photo loaded" src="${scenePhoto}" alt="${escapeHtml(msg.image.caption||'')}">`
+        : eerieSvg(msg.image.kind);
+      inner += `<div class="eerie-frame" id="${frameId}">${frameContent}</div>`;
       if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`;
     }
     inner += '</div>'; row.innerHTML = inner; timelineEl.appendChild(row);
 
+    // 実写画像が既にある場合はAI生成をスキップする。
     // AI画像生成が有効なら、SVGプレースホルダーを裏で実写風画像に差し替える（キャッシュがあれば即時・APIは叩かない）
-    if(msg.image && settings.aiImageEnabled && currentScenario){
+    if(msg.image && !scenePhoto && settings.aiImageEnabled && currentScenario){
       const cacheKey = 'scene_' + currentScenario.id + '_' + msg.image.kind;
       const myToken = genToken;
       const prompt = '不穏でリアルな深夜の日本の' + (msg.image.caption || msg.image.kind) + 'の写真。低照度、ドキュメンタリー風、ホラー演出、人物の顔は写さない。';
@@ -1471,7 +1501,8 @@
     const time = nowLabel();
     const row = document.createElement('div'); row.className='msg-row them';
     const textHtml = msg.glitch ? `<span class="glitch">${escapeHtml(msg.text)}</span>` : escapeHtml(msg.text);
-    row.innerHTML = `<div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
+    const av = avatarStyleAndInner(currentScenario);
+    row.innerHTML = `<div class="msg-avatar" style="${av.style}">${av.inner}</div>
       <div class="msg-wrap"><div class="bubble">${textHtml}</div><div class="msg-meta"><span>${time}</span></div></div>`;
     timelineEl.appendChild(row);
   }
@@ -1505,7 +1536,8 @@
     if(show){
       if(row) return;
       row = document.createElement('div'); row.id='typing-row'; row.className='typing-row';
-      row.innerHTML = `<div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
+      const av = avatarStyleAndInner(currentScenario);
+      row.innerHTML = `<div class="msg-avatar" style="${av.style}">${av.inner}</div>
         <div class="typing-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
       timelineEl.appendChild(row); scrollToBottom();
     } else if(row){ row.remove(); }

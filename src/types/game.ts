@@ -19,7 +19,7 @@ export type SoundType =
   | 'none'
 
 export interface ImagePlaceholder {
-  kind: 'doorscope' | 'eyes' | 'cctv' | 'handprints' | 'tunnel'
+  kind: 'doorscope' | 'eyes' | 'cctv' | 'handprints' | 'tunnel' | 'doorajar' | 'corridor'
   caption?: string
 }
 
@@ -66,6 +66,8 @@ export interface Character {
   name: string
   avatarEmoji: string
   avatarColor: string
+  /** 実写アバター画像パス（未指定ならavatarEmojiを表示） */
+  avatarImage?: string
 }
 
 export interface Scenario {

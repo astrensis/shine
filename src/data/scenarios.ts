@@ -12,6 +12,7 @@ const doorscopeScenario: Scenario = {
     name: 'アオイ',
     avatarEmoji: '🌙',
     avatarColor: '#f472b6',
+    avatarImage: '/images/avatars/aoi.jpg',
   },
   startNodeId: 'start',
   nodes: {
@@ -44,6 +45,7 @@ const doorscopeScenario: Scenario = {
           id: 's4',
           sender: 'system',
           text: 'アオイの部屋のドアノブが、静かに揺れている',
+          image: { kind: 'doorajar', caption: '薄暗い玄関ドア' },
           delayMs: 1500,
         },
       ],
@@ -153,6 +155,13 @@ const doorscopeScenario: Scenario = {
           text: 'ドアスコープ、そっと覗いてみます',
           delayMs: 1800,
           sound: 'receive',
+        },
+        {
+          id: 'sp4b',
+          sender: 'system',
+          text: '',
+          image: { kind: 'doorscope', caption: 'ドアスコープ越しの廊下' },
+          delayMs: 1200,
         },
         {
           id: 'sp5',
@@ -319,6 +328,7 @@ const tunnelScenario: Scenario = {
     name: 'タクヤ',
     avatarEmoji: '🚗',
     avatarColor: '#38bdf8',
+    avatarImage: '/images/avatars/takuya.jpg',
   },
   startNodeId: 'start',
   nodes: {
@@ -568,6 +578,7 @@ const nightShiftScenario: Scenario = {
     name: 'リョウ',
     avatarEmoji: '🏪',
     avatarColor: '#facc15',
+    avatarImage: '/images/avatars/ryo.jpg',
   },
   startNodeId: 'start',
   nodes: {

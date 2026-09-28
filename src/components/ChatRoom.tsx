@@ -206,10 +206,15 @@ export function ChatRoom({ scenario, onExit, onEnding }: ChatRoomProps) {
           <ChevronLeft className="w-6 h-6" />
         </button>
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0"
-          style={{ backgroundColor: scenario.character.avatarColor }}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 overflow-hidden bg-cover bg-center"
+          style={{
+            backgroundColor: scenario.character.avatarColor,
+            backgroundImage: scenario.character.avatarImage
+              ? `url(${scenario.character.avatarImage})`
+              : undefined,
+          }}
         >
-          {scenario.character.avatarEmoji}
+          {!scenario.character.avatarImage && scenario.character.avatarEmoji}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold truncate">{scenario.character.name}</p>
