@@ -677,36 +677,63 @@
     return { get, set };
   })();
 
-  // 実写風ポートレート／現場写真の生成。APIキー未設定・失敗時は null を返し、呼び出し側はSVGプレースホルダーのまま維持する
+  // 実写風ポートレート／現場写真の生成。APIキー未設定・失敗時は null を返し、呼び出し側はSVGプレースホルダーのまま維持する。
+  // 失敗理由は lastImageError に文字列で残す（設定画面の「接続テスト」で確認できる）。
+  let lastImageError = '';
+  const IMAGE_MODEL_CANDIDATES = ['imagen-4.0-generate-001', 'imagen-3.0-generate-002'];
+
+  async function requestImageFromApi(prompt){
+    let lastErr = '';
+    for(const model of IMAGE_MODEL_CANDIDATES){
+      try{
+        const resp = await fetch(
+          'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':predict?key=' + encodeURIComponent(settings.geminiApiKey),
+          {
+            method:'POST',
+            headers:{ 'Content-Type':'application/json' },
+            body: JSON.stringify({
+              instances:[{ prompt: prompt }],
+              parameters:{ sampleCount:1, aspectRatio:'3:4' },
+            }),
+          }
+        );
+        const raw = await resp.text();
+        let data = null;
+        try{ data = raw ? JSON.parse(raw) : null; }catch(e){ /* not json */ }
+
+        if(!resp.ok){
+          const apiMsg = data && data.error && data.error.message ? data.error.message : raw.slice(0,200);
+          lastErr = `[${model}] HTTP ${resp.status}: ${apiMsg}`;
+          continue; // 次の候補モデルを試す（このモデルが使えない可能性があるため）
+        }
+        const b64 = data && data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded;
+        if(!b64){
+          lastErr = `[${model}] レスポンスに画像データがありませんでした（セーフティフィルタで弾かれた可能性）: ${raw.slice(0,200)}`;
+          continue;
+        }
+        return { ok:true, model, dataUrl: 'data:image/jpeg;base64,' + b64 };
+      }catch(e){
+        lastErr = `[${model}] ネットワークエラー: ${e.message} （このAPIをブラウザから直接叩くとCORSでブロックされることがあります）`;
+      }
+    }
+    return { ok:false, error: lastErr || '不明なエラー' };
+  }
+
   async function generateImage(cacheKey, prompt){
     const cached = await ImageCache.get(cacheKey);
     if(cached) return cached; // キャッシュがあれば絶対にAPIを叩かない
 
     if(!settings.aiImageEnabled || !settings.geminiApiKey) return null;
 
-    try{
-      const resp = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=' + encodeURIComponent(settings.geminiApiKey),
-        {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({
-            instances:[{ prompt: prompt }],
-            parameters:{ sampleCount:1, aspectRatio:'3:4', outputOptions:{ mimeType:'image/jpeg', compressionQuality:70 } },
-          }),
-        }
-      );
-      if(!resp.ok) return null;
-      const data = await resp.json();
-      const b64 = data && data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded;
-      if(!b64) return null;
-      const dataUrl = 'data:image/jpeg;base64,' + b64;
-      await ImageCache.set(cacheKey, dataUrl);
-      return dataUrl;
-    }catch(e){
-      console.warn('image generation failed, falling back to placeholder', e);
+    const result = await requestImageFromApi(prompt);
+    if(!result.ok){
+      lastImageError = result.error;
+      console.warn('image generation failed, falling back to placeholder:', result.error);
       return null;
     }
+    lastImageError = '';
+    await ImageCache.set(cacheKey, result.dataUrl);
+    return result.dataUrl;
   }
 
   // ============================================================
@@ -1263,6 +1290,8 @@
         <input type="password" id="gemini-key-input" placeholder="ここに貼り付け" value="${escapeHtml(settings.geminiApiKey)}"
           style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--list-border);background:rgba(255,255,255,.05);color:var(--list-text);font-size:12px;font-family:inherit;">
         <div class="settings-row-sub" style="margin-top:6px;">公開されたゲームのコード自体には鍵を埋め込みません。ここに入力した鍵は、あなたのブラウザのlocalStorageだけに保存され、共有・コミットされることはありません。</div>
+        <button class="reset-btn" id="test-image-btn" style="margin-top:10px; align-self:flex-start;">接続テスト</button>
+        <div class="settings-row-sub" id="test-image-status" style="margin-top:6px; white-space:pre-wrap; word-break:break-word;"></div>
       </div>
       <div class="settings-section">
         <div class="settings-section-title">データ管理</div>
@@ -1312,6 +1341,22 @@
     $('horror-toggle').addEventListener('change', (e)=>{ settings.horrorAudioEnabled = e.target.checked; persistSettings(); });
     $('ai-image-toggle').addEventListener('change', (e)=>{ settings.aiImageEnabled = e.target.checked; persistSettings(); });
     $('gemini-key-input').addEventListener('change', (e)=>{ settings.geminiApiKey = e.target.value.trim(); persistSettings(); });
+    $('test-image-btn').addEventListener('click', async ()=>{
+      const statusEl = $('test-image-status');
+      settings.geminiApiKey = $('gemini-key-input').value.trim();
+      persistSettings();
+      if(!settings.geminiApiKey){ statusEl.textContent = 'APIキーが未入力です。'; statusEl.style.color = 'var(--danger)'; return; }
+      statusEl.style.color = 'var(--list-sub)';
+      statusEl.textContent = 'テスト送信中…';
+      const result = await requestImageFromApi('不穏な深夜の日本の路地の写真。低照度、ドキュメンタリー風。人物なし。');
+      if(result.ok){
+        statusEl.style.color = 'var(--success)';
+        statusEl.textContent = '成功：' + result.model + ' で画像を受信しました。';
+      } else {
+        statusEl.style.color = 'var(--danger)';
+        statusEl.textContent = '失敗：' + result.error;
+      }
+    });
 
     $('reset-progress-btn').addEventListener('click', ()=>{
       if(confirm('すべてのプレイ状況をリセットします。よろしいですか？')){
