@@ -3,25 +3,24 @@
   :root{
     --bg-outer:#050506;
     --frame-shadow: rgba(0,0,0,.6);
-    --list-bg:#111318;
-    --list-header:#0c0e12;
-    --list-border: rgba(255,255,255,.06);
+    --list-bg:#0f1115;
+    --list-header:#0b0c10;
+    --list-border: rgba(255,255,255,.07);
     --list-text:#f2f3f5;
     --list-sub:#8a8f98;
     --danger:#e5484d;
     --success:#2fbf71;
     --warn:#f2b134;
-    --chat-bg:#93bfe0;
-    --chat-header:#3a3a3a;
+    --chat-bg:#849ebf;
+    --chat-header:#333333;
     --bubble-them:#ffffff;
-    --bubble-me:#8fe05a;
+    --bubble-me:#5ac463;
     --bubble-text:#141414;
     --accent:#06c755;
+    --statusbar:#000;
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){ color-scheme: dark; }
-  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ color-scheme: dark; } }
   :root[data-theme="dark"]{ color-scheme: dark; }
 
   *{box-sizing:border-box;}
@@ -29,341 +28,301 @@
     background:var(--bg-outer);
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium","Noto Sans JP",sans-serif;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-height:100%;
-    padding-block:24px;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100%; padding-block:20px;
   }
   #stage{
-    width:100%;
-    max-width:430px;
-    height:min(880px, calc(100dvh - 48px));
-    background:#000;
-    border-radius:34px;
-    overflow:hidden;
-    position:relative;
+    width:100%; max-width:430px;
+    height:min(900px, calc(100dvh - 40px));
+    background:#000; border-radius:38px; overflow:hidden; position:relative;
     box-shadow:0 30px 80px var(--frame-shadow), 0 0 0 1px rgba(255,255,255,.05);
+    display:flex; flex-direction:column;
   }
+
+  /* ---------- ステータスバー ---------- */
+  .statusbar{
+    background:var(--statusbar); color:#fff; flex-shrink:0;
+    padding:calc(6px + env(safe-area-inset-top,0px)) 22px 4px;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:13px; font-weight:600; font-variant-numeric:tabular-nums;
+    position:relative; z-index:50;
+  }
+  .statusbar .sb-icons{ display:flex; align-items:center; gap:5px; }
+
+  .app-body{ position:relative; flex:1; min-height:0; }
   .screen{
-    position:absolute;
-    inset:0;
-    display:flex;
-    flex-direction:column;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .25s ease;
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
   }
   .screen.active{ opacity:1; pointer-events:auto; }
 
   /* ---------- Chat List ---------- */
   #list-screen{ background:var(--list-bg); }
   .list-header{
-    background:var(--list-header);
-    padding:calc(18px + env(safe-area-inset-top,0px)) 18px 12px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+    background:var(--list-header); padding:16px 18px 10px;
     border-bottom:1px solid var(--list-border);
   }
-  .list-header h1{
-    color:var(--list-text);
-    font-size:19px;
-    font-weight:800;
-    letter-spacing:.02em;
-    margin:0;
-  }
+  .list-header-top{ display:flex; align-items:center; justify-content:space-between; }
+  .list-header-top h1{ color:var(--list-text); font-size:19px; font-weight:800; margin:0; }
   .reset-btn{
-    background:transparent;
-    border:1px solid rgba(255,255,255,.14);
-    color:var(--list-sub);
-    font-size:11px;
-    padding:6px 12px;
-    border-radius:999px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:5px;
-    font-family:inherit;
+    background:transparent; border:1px solid rgba(255,255,255,.14); color:var(--list-sub);
+    font-size:11px; padding:6px 12px; border-radius:999px; cursor:pointer;
+    display:flex; align-items:center; gap:5px; font-family:inherit;
   }
   .reset-btn:hover{ color:var(--list-text); border-color:rgba(255,255,255,.3); }
+  .list-stats{ display:flex; gap:10px; margin-top:10px; }
+  .stat-pill{
+    flex:1; background:rgba(255,255,255,.05); border:1px solid var(--list-border);
+    border-radius:12px; padding:8px 10px;
+  }
+  .stat-pill .num{ font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .stat-pill.success .num{ color:var(--success); }
+  .stat-pill.bad .num{ color:var(--danger); }
+  .stat-pill .lbl{ font-size:9.5px; color:var(--list-sub); margin-top:1px; }
 
   .thread-list{ flex:1; overflow-y:auto; }
   .thread{
-    width:100%;
-    display:flex;
-    align-items:center;
-    gap:13px;
-    padding:14px 18px;
-    background:transparent;
-    border:none;
-    border-bottom:1px solid var(--list-border);
-    text-align:left;
-    cursor:pointer;
-    font-family:inherit;
+    width:100%; display:flex; align-items:center; gap:12px; padding:12px 18px;
+    background:transparent; border:none; border-bottom:1px solid var(--list-border);
+    text-align:left; cursor:pointer; font-family:inherit;
   }
   .thread:hover{ background:rgba(255,255,255,.04); }
   .thread-avatar{
-    width:50px;height:50px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-size:22px;flex-shrink:0;position:relative;
+    width:46px;height:46px;border-radius:50%; flex-shrink:0; position:relative;
+    display:flex;align-items:center;justify-content:center;font-size:20px;
     box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
   }
+  .thread-avatar.locked{ filter:grayscale(1) brightness(.5); }
   .unread-dot{
-    position:absolute; top:-2px; right:-2px;
-    width:17px;height:17px;border-radius:50%;
-    background:var(--danger); color:#fff;
-    font-size:10px; font-weight:700;
-    display:flex;align-items:center;justify-content:center;
-    border:2px solid var(--list-bg);
+    position:absolute; top:-2px; right:-2px; width:16px;height:16px;border-radius:50%;
+    background:var(--danger); color:#fff; font-size:9.5px; font-weight:700;
+    display:flex;align-items:center;justify-content:center; border:2px solid var(--list-bg);
   }
   .thread-body{ flex:1; min-width:0; }
   .thread-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
-  .thread-name{ color:var(--list-text); font-size:15px; font-weight:700; }
-  .thread-sub{
-    color:var(--list-sub); font-size:12.5px; margin-top:3px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .badge{
-    font-size:10px; font-weight:700; padding:3px 9px; border-radius:999px;
-    border:1px solid; flex-shrink:0; white-space:nowrap;
-  }
+  .thread-name{ color:var(--list-text); font-size:14.5px; font-weight:700; }
+  .thread-sub{ color:var(--list-sub); font-size:12px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .badge{ font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:999px; border:1px solid; flex-shrink:0; white-space:nowrap; }
   .badge.success{ color:var(--success); border-color:rgba(47,191,113,.4); background:rgba(47,191,113,.12); }
   .badge.bad{ color:var(--danger); border-color:rgba(229,72,77,.4); background:rgba(229,72,77,.12); }
   .badge.progress{ color:var(--warn); border-color:rgba(242,177,52,.4); background:rgba(242,177,52,.12); }
+  .badge.locked{ color:#5a5e66; border-color:rgba(255,255,255,.1); background:rgba(255,255,255,.03); }
 
-  .list-footer{
-    padding:10px 0 calc(12px + env(safe-area-inset-bottom,0px));
-    border-top:1px solid var(--list-border);
-    display:flex; justify-content:center; gap:36px;
-    color:#4a4e57;
+  .toast{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%) translateY(-140%);
+    background:#161a20; color:#fff; padding:10px 16px; border-radius:12px;
+    font-size:12.5px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.4);
+    border:1px solid rgba(255,255,255,.1); z-index:60; white-space:nowrap;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    display:flex; align-items:center; gap:8px;
   }
+  .toast.show{ transform:translateX(-50%) translateY(0); }
 
   /* ---------- Chat Room ---------- */
   #chat-screen{ background:var(--chat-bg); }
   .chat-header{
-    background:var(--chat-header);
-    color:#fff;
-    padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;
-    display:flex; align-items:center; gap:10px;
-    flex-shrink:0;
-    position:relative; z-index:2;
+    background:var(--chat-header); color:#fff; padding:9px 10px; display:flex; align-items:center; gap:9px;
+    flex-shrink:0; position:relative; z-index:5;
   }
-  .icon-btn{
-    background:transparent;border:none;color:#fff;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    padding:6px; opacity:.9;
-  }
+  .icon-btn{ background:transparent;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px; opacity:.9; }
   .icon-btn:hover{ opacity:1; }
-  .chat-header-avatar{
-    width:32px;height:32px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;
-  }
+  .chat-header-avatar{ width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
   .chat-header-info{ flex:1; min-width:0; }
-  .chat-header-name{ font-size:14px; font-weight:700; }
-  .chat-header-status{ font-size:10.5px; margin-top:1px; color:#c7c7c7; }
+  .chat-header-name{ font-size:13.5px; font-weight:700; }
+  .chat-header-status{ font-size:10px; margin-top:1px; color:#c7c7c7; }
   .chat-header-status.typing{ color:#8fe05a; }
   .chat-header-status.offline{ color:var(--danger); }
+  .chat-header-status.waiting{ color:var(--warn); }
+  .fast-toggle{
+    display:flex; align-items:center; gap:4px; background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15); border-radius:999px; padding:5px 9px;
+    font-size:10px; font-weight:700; cursor:pointer; color:#c7c7c7; flex-shrink:0;
+  }
+  .fast-toggle.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
 
-  .timeline{ flex:1; overflow-y:auto; padding:14px 0; position:relative; z-index:1; }
+  .timeline{ flex:1; overflow-y:auto; padding:12px 0 6px; position:relative; z-index:1; }
 
-  .msg-row{ display:flex; padding:0 12px; margin:6px 0; }
+  .msg-row{ display:flex; padding:0 10px; margin:5px 0; }
   .msg-row.them{ justify-content:flex-start; }
   .msg-row.me{ justify-content:flex-end; }
   .msg-avatar{
-    width:30px;height:30px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;font-size:14px;
-    flex-shrink:0; margin-right:7px; align-self:flex-end;
-    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;
+    flex-shrink:0; margin-right:6px; align-self:flex-end; box-shadow: 0 1px 3px rgba(0,0,0,.25);
   }
-  .msg-wrap{ display:flex; align-items:flex-end; gap:6px; max-width:74%; }
+  .msg-wrap{ display:flex; align-items:flex-end; gap:5px; max-width:75%; }
   .msg-row.me .msg-wrap{ flex-direction:row-reverse; }
   .bubble{
-    padding:9px 13px; border-radius:17px; font-size:14px; line-height:1.45;
+    position:relative; padding:8px 12px; border-radius:16px; font-size:13.5px; line-height:1.45;
     white-space:pre-wrap; word-break:break-word; box-shadow:0 1px 2px rgba(0,0,0,.15);
   }
-  .msg-row.them .bubble{ background:var(--bubble-them); color:var(--bubble-text); border-bottom-left-radius:5px; }
-  .msg-row.me .bubble{ background:var(--bubble-me); color:var(--bubble-text); border-bottom-right-radius:5px; }
-  .msg-meta{
-    display:flex; flex-direction:column; font-size:10px; color:rgba(20,20,20,.55);
-    flex-shrink:0; line-height:1.5;
+  .msg-row.them .bubble{ background:var(--bubble-them); color:var(--bubble-text); border-top-left-radius:3px; }
+  .msg-row.me .bubble{ background:var(--bubble-me); color:#0b2b0b; border-top-right-radius:3px; }
+  .msg-row.them .bubble::before{
+    content:''; position:absolute; top:0; left:-6px; width:10px; height:10px;
+    background:var(--bubble-them); clip-path:polygon(100% 0, 100% 100%, 0 0);
   }
+  .msg-row.me .bubble::before{
+    content:''; position:absolute; top:0; right:-6px; width:10px; height:10px;
+    background:var(--bubble-me); clip-path:polygon(0 0, 100% 0, 0 100%);
+  }
+  .msg-meta{ display:flex; flex-direction:column; font-size:9.5px; color:rgba(20,20,20,.6); flex-shrink:0; line-height:1.5; }
   .msg-row.them .msg-meta{ align-items:flex-start; }
   .msg-row.me .msg-meta{ align-items:flex-end; }
+  .msg-meta .read-label{ color:rgba(20,20,20,.45); }
+  .msg-meta .read-label.is-read{ color:rgba(20,20,20,.6); font-weight:700; }
 
-  .sys-row{ display:flex; justify-content:center; padding:10px 26px; }
-  .sys-inner{ display:flex; flex-direction:column; align-items:center; gap:8px; max-width:88%; }
-  .sys-text{
-    font-size:11px; color:rgba(20,20,20,.65); background:rgba(255,255,255,.55);
-    padding:4px 12px; border-radius:999px; text-align:center;
-  }
+  .sys-row{ display:flex; justify-content:center; padding:9px 24px; }
+  .sys-inner{ display:flex; flex-direction:column; align-items:center; gap:7px; max-width:88%; }
+  .sys-text{ font-size:10.5px; color:rgba(20,20,20,.65); background:rgba(255,255,255,.55); padding:4px 12px; border-radius:999px; text-align:center; }
 
-  .eerie-frame{
-    width:100%; max-width:210px; border-radius:11px; overflow:hidden;
-    border:1px solid rgba(0,0,0,.4); box-shadow:0 6px 18px rgba(0,0,0,.35);
-    animation: flicker 2.6s linear infinite;
-  }
+  .eerie-frame{ width:100%; max-width:200px; border-radius:11px; overflow:hidden; border:1px solid rgba(0,0,0,.4); box-shadow:0 6px 18px rgba(0,0,0,.35); animation: flicker 2.6s linear infinite; }
   .eerie-frame svg{ display:block; width:100%; aspect-ratio:3/2; background:#000; }
-  .eerie-caption{
-    background:rgba(0,0,0,.82); color:#9aa0a8; font-size:9.5px;
-    font-family:ui-monospace,monospace; padding:4px 8px;
-  }
+  .eerie-caption{ background:rgba(0,0,0,.82); color:#9aa0a8; font-size:9px; font-family:ui-monospace,monospace; padding:4px 8px; }
 
-  .glitch{
-    position:relative; display:inline-block; color:#ff3b3b;
-    text-shadow:2px 0 #00e5ff, -2px 0 #ff00c8;
-    animation: glitchJitter .13s infinite steps(2);
-  }
+  .glitch{ position:relative; display:inline-block; color:#ff3b3b; text-shadow:2px 0 #00e5ff, -2px 0 #ff00c8; animation: glitchJitter .13s infinite steps(2); }
 
-  .typing-row{ display:flex; padding:0 12px; margin:6px 0; align-items:flex-end; }
-  .typing-bubble{
-    background:#fff; border-radius:17px; border-bottom-left-radius:5px;
-    padding:11px 15px; display:flex; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,.15);
-  }
+  .typing-row{ display:flex; padding:0 10px; margin:5px 0; align-items:flex-end; }
+  .typing-bubble{ background:#fff; border-radius:16px; border-top-left-radius:3px; padding:10px 14px; display:flex; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,.15); }
   .typing-dot{ width:6px;height:6px;border-radius:50%; background:#9a9a9a; animation:bounceDot 1.2s infinite ease-in-out; }
   .typing-dot:nth-child(2){ animation-delay:.15s; }
   .typing-dot:nth-child(3){ animation-delay:.3s; }
 
-  .choices{
-    flex-shrink:0; background:#eef1f4; border-top:1px solid rgba(0,0,0,.08);
-    padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));
-    display:flex; flex-direction:column; gap:9px; z-index:2; position:relative;
+  /* ---------- 潜伏タイマー ---------- */
+  .action-timer-row{ display:flex; justify-content:center; padding:14px 22px; }
+  .action-timer{
+    width:100%; max-width:280px; background:rgba(10,10,14,.72); border:1px solid rgba(255,80,80,.35);
+    border-radius:16px; padding:14px 16px; backdrop-filter:blur(2px);
   }
+  .at-label{ color:#ff8f8f; font-size:11.5px; font-weight:700; text-align:center; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .at-label .dot{ width:6px;height:6px;border-radius:50%; background:#ff4d4d; animation:pulseDot 1s infinite; }
+  .at-bar-track{ height:6px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden; }
+  .at-bar-fill{ height:100%; background:linear-gradient(90deg,#ff4d4d,#ff8f4d); border-radius:999px; transition:width .1s linear; }
+  .at-count{ text-align:center; color:#fff; font-size:19px; font-weight:800; margin-top:8px; font-variant-numeric:tabular-nums; }
+
+  /* ---------- 入力バー（装飾） ---------- */
+  .input-bar{
+    flex-shrink:0; background:#f1f1f1; border-top:1px solid rgba(0,0,0,.08);
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px)); display:flex; align-items:center; gap:7px;
+    position:relative; z-index:2;
+  }
+  .input-bar .ib-icon{ width:26px;height:26px; flex-shrink:0; display:flex;align-items:center;justify-content:center; color:#8b8f96; }
+  .input-bar .ib-field{
+    flex:1; background:#fff; border-radius:18px; padding:8px 14px; font-size:12.5px; color:#a8adb5;
+    border:1px solid rgba(0,0,0,.06);
+  }
+
+  /* ---------- 選択肢（入力エリアの上にオーバーレイ） ---------- */
+  .choices{
+    position:absolute; left:0; right:0; bottom:0; z-index:3;
+    background:#eef1f4; border-top:1px solid rgba(0,0,0,.08);
+    padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));
+    display:flex; flex-direction:column; gap:8px;
+    transform:translateY(100%); transition:transform .32s cubic-bezier(.22,1,.36,1);
+  }
+  .choices.show{ transform:translateY(0); }
   .choice-btn{
-    width:100%; text-align:left; padding:13px 15px; border-radius:14px;
-    background:#fff; border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 6px rgba(0,0,0,.08);
-    font-size:13.5px; color:#1a1a1a; font-weight:600; cursor:pointer; font-family:inherit;
+    width:100%; text-align:left; padding:12px 14px; border-radius:14px; background:#fff;
+    border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 6px rgba(0,0,0,.08);
+    font-size:13px; color:#1a1a1a; font-weight:600; cursor:pointer; font-family:inherit;
     transition:transform .1s ease, background .15s ease;
   }
   .choice-btn:hover{ background:#fafafa; }
   .choice-btn:active{ transform:scale(.98); }
 
-  .call-flash{
-    position:absolute; inset:0; z-index:30; background:#000;
-    display:flex; align-items:center; justify-content:center;
-    animation: flashRed .5s ease-in-out 2;
-  }
-  .call-flash span{ color:var(--danger); font-family:ui-monospace,monospace; font-size:12.5px; letter-spacing:.08em; }
+  .call-flash{ position:absolute; inset:0; z-index:30; background:#000; display:flex; align-items:center; justify-content:center; animation: flashRed .5s ease-in-out 2; }
+  .call-flash span{ color:var(--danger); font-family:ui-monospace,monospace; font-size:12px; letter-spacing:.08em; }
 
   /* ---------- Result Modal ---------- */
-  #result-modal{
-    position:absolute; inset:0; z-index:40; display:none;
-    align-items:center; justify-content:center; padding:26px;
-    background:rgba(0,0,0,.82); backdrop-filter: blur(2px);
-  }
+  #result-modal{ position:absolute; inset:0; z-index:40; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,.82); }
   #result-modal.show{ display:flex; }
-  .result-card{
-    width:100%; max-width:320px; border-radius:20px; padding:28px 24px;
-    text-align:center; background:#111318; border:1px solid rgba(255,255,255,.08);
-  }
+  .result-card{ width:100%; max-width:310px; border-radius:20px; padding:26px 22px; text-align:center; background:#111318; border:1px solid rgba(255,255,255,.08); }
   .result-card.success{ border-color:rgba(47,191,113,.35); }
   .result-card.bad{ border-color:rgba(229,72,77,.4); }
-  .result-icon{ font-size:44px; margin-bottom:6px; }
-  .result-kicker{ font-size:12px; font-weight:800; letter-spacing:.08em; margin-bottom:4px; }
+  .result-icon{ font-size:42px; margin-bottom:6px; }
+  .result-kicker{ font-size:11.5px; font-weight:800; letter-spacing:.08em; margin-bottom:4px; }
   .result-card.success .result-kicker{ color:var(--success); }
   .result-card.bad .result-kicker{ color:var(--danger); }
-  .result-title{ color:#fff; font-size:17px; font-weight:800; margin-bottom:10px; }
-  .result-desc{ color:#a8adb5; font-size:13px; line-height:1.7; margin-bottom:22px; }
+  .result-title{ color:#fff; font-size:16.5px; font-weight:800; margin-bottom:9px; }
+  .result-desc{ color:#a8adb5; font-size:12.5px; line-height:1.7; margin-bottom:12px; }
+  .result-unlock{ font-size:11.5px; color:var(--accent); font-weight:700; margin-bottom:16px; min-height:1px; }
   .result-actions{ display:flex; flex-direction:column; gap:9px; }
-  .result-btn{
-    width:100%; padding:12px; border-radius:999px; border:none; cursor:pointer;
-    font-size:13.5px; font-weight:700; font-family:inherit;
-  }
+  .result-btn{ width:100%; padding:12px; border-radius:999px; border:none; cursor:pointer; font-size:13px; font-weight:700; font-family:inherit; }
   .result-btn.retry{ background:rgba(255,255,255,.1); color:#fff; }
   .result-btn.retry:hover{ background:rgba(255,255,255,.16); }
   .result-btn.back{ background:var(--accent); color:#fff; }
   .result-btn.back:hover{ filter:brightness(1.08); }
 
-  /* ---------- effects ---------- */
-  @keyframes shake{
-    0%,100%{ transform:translate(0,0); }
-    10%{ transform:translate(-2px,1px); }
-    20%{ transform:translate(2px,-1px); }
-    30%{ transform:translate(-3px,0); }
-    40%{ transform:translate(3px,1px); }
-    50%{ transform:translate(-1px,-2px); }
-    60%{ transform:translate(1px,2px); }
-    70%{ transform:translate(-2px,-1px); }
-    80%{ transform:translate(2px,1px); }
-    90%{ transform:translate(-1px,0); }
-  }
-  @keyframes shakeHard{
-    0%,100%{ transform:translate(0,0); }
-    25%{ transform:translate(-4px,2px); }
-    50%{ transform:translate(4px,-2px); }
-    75%{ transform:translate(-3px,-3px); }
-  }
+  @keyframes shake{ 0%,100%{transform:translate(0,0);} 10%{transform:translate(-2px,1px);} 20%{transform:translate(2px,-1px);} 30%{transform:translate(-3px,0);} 40%{transform:translate(3px,1px);} 50%{transform:translate(-1px,-2px);} 60%{transform:translate(1px,2px);} 70%{transform:translate(-2px,-1px);} 80%{transform:translate(2px,1px);} 90%{transform:translate(-1px,0);} }
+  @keyframes shakeHard{ 0%,100%{transform:translate(0,0);} 25%{transform:translate(-4px,2px);} 50%{transform:translate(4px,-2px);} 75%{transform:translate(-3px,-3px);} }
   .fx-shake{ animation:shake .4s ease-in-out; }
   .fx-shake-hard{ animation:shakeHard .12s ease-in-out 4; }
-  @keyframes flashRed{
-    0%,100%{ background-color:transparent; }
-    50%{ background-color:rgba(220,38,38,.32); }
-  }
+  @keyframes flashRed{ 0%,100%{background-color:transparent;} 50%{background-color:rgba(220,38,38,.32);} }
   .fx-flash{ animation:flashRed .5s ease-in-out 2; }
-  @keyframes flicker{
-    0%,100%{ opacity:1; } 45%{ opacity:1; } 46%{ opacity:.3; }
-    47%{ opacity:1; } 48%{ opacity:.2; } 49%{ opacity:1; }
-  }
-  @keyframes glitchJitter{
-    0%{ transform:translate(0,0); } 25%{ transform:translate(-1px,1px); }
-    50%{ transform:translate(1px,-1px); } 75%{ transform:translate(-1px,-1px); }
-    100%{ transform:translate(1px,1px); }
-  }
-  @keyframes bounceDot{
-    0%,80%,100%{ transform:translateY(0); opacity:.5; }
-    40%{ transform:translateY(-4px); opacity:1; }
-  }
-
-  #hint{
-    position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
-    font-size:11px; color:#5a5e66; font-family:inherit; z-index:5;
-    pointer-events:none; opacity:.8;
-  }
+  @keyframes flicker{ 0%,100%{opacity:1;} 45%{opacity:1;} 46%{opacity:.3;} 47%{opacity:1;} 48%{opacity:.2;} 49%{opacity:1;} }
+  @keyframes glitchJitter{ 0%{transform:translate(0,0);} 25%{transform:translate(-1px,1px);} 50%{transform:translate(1px,-1px);} 75%{transform:translate(-1px,-1px);} 100%{transform:translate(1px,1px);} }
+  @keyframes bounceDot{ 0%,80%,100%{transform:translateY(0); opacity:.5;} 40%{transform:translateY(-4px); opacity:1;} }
+  @keyframes pulseDot{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
 
   @media (prefers-reduced-motion: reduce){
-    .fx-shake,.fx-shake-hard,.fx-flash,.eerie-frame,.glitch,.typing-dot{ animation:none !important; }
+    .fx-shake,.fx-shake-hard,.fx-flash,.eerie-frame,.glitch,.typing-dot,.at-label .dot{ animation:none !important; }
   }
 </style>
 
 <div id="stage">
-  <!-- ============ Chat List ============ -->
-  <div id="list-screen" class="screen active">
-    <div class="list-header">
-      <h1>トーク</h1>
-      <button class="reset-btn" id="reset-btn">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-        全データ初期化
-      </button>
-    </div>
-    <div class="thread-list" id="thread-list"></div>
-    <div class="list-footer">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+  <div class="statusbar">
+    <span id="sb-time">0:00</span>
+    <div class="sb-icons">
+      <svg width="16" height="11" viewBox="0 0 16 11"><rect x="0" y="7" width="3" height="4" rx=".5" fill="#fff"/><rect x="4.5" y="5" width="3" height="6" rx=".5" fill="#fff"/><rect x="9" y="3" width="3" height="8" rx=".5" fill="#fff"/><rect x="13" y="0" width="3" height="11" rx=".5" fill="#fff"/></svg>
+      <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 9.5a1.3 1.3 0 100 2.6 1.3 1.3 0 000-2.6z" fill="#fff"/><path d="M3.8 6.8a5.2 5.2 0 017.4 0l-1.2 1.2a3.5 3.5 0 00-5 0z" fill="#fff"/><path d="M1 4a9 9 0 0113 0L12.8 5.2a7.3 7.3 0 00-10.6 0z" fill="#fff"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12"><rect x="1" y="1" width="19" height="10" rx="2.5" fill="none" stroke="#fff" stroke-opacity=".5"/><rect x="2.5" y="2.5" width="15" height="7" rx="1.2" fill="#fff"/><rect x="21" y="4" width="2" height="4" rx="1" fill="#fff" fill-opacity=".5"/></svg>
     </div>
   </div>
 
-  <!-- ============ Chat Room ============ -->
-  <div id="chat-screen" class="screen">
-    <div class="chat-header">
-      <button class="icon-btn" id="back-btn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <div class="chat-header-avatar" id="chat-avatar"></div>
-      <div class="chat-header-info">
-        <div class="chat-header-name" id="chat-name"></div>
-        <div class="chat-header-status" id="chat-status">オンライン</div>
+  <div class="app-body">
+    <!-- ============ Chat List ============ -->
+    <div id="list-screen" class="screen active">
+      <div class="list-header">
+        <div class="list-header-top">
+          <h1>トーク</h1>
+          <button class="reset-btn" id="reset-btn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            初期化
+          </button>
+        </div>
+        <div class="list-stats">
+          <div class="stat-pill success"><div class="num" id="stat-cleared">0/30</div><div class="lbl">救出成功</div></div>
+          <div class="stat-pill bad"><div class="num" id="stat-bad">0/30</div><div class="lbl">BAD END回収</div></div>
+        </div>
       </div>
-      <button class="icon-btn" id="call-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      </button>
-      <button class="icon-btn" id="video-btn">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-      </button>
+      <div class="thread-list" id="thread-list"></div>
+      <div id="toast-holder"></div>
     </div>
-    <div class="timeline" id="timeline"></div>
-    <div class="choices" id="choices" style="display:none;"></div>
-    <div id="call-flash-holder"></div>
+
+    <!-- ============ Chat Room ============ -->
+    <div id="chat-screen" class="screen">
+      <div class="chat-header">
+        <button class="icon-btn" id="back-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="chat-header-avatar" id="chat-avatar"></div>
+        <div class="chat-header-info">
+          <div class="chat-header-name" id="chat-name"></div>
+          <div class="chat-header-status" id="chat-status">オンライン</div>
+        </div>
+        <button class="fast-toggle" id="fast-toggle">⏩ FAST</button>
+        <button class="icon-btn" id="call-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </button>
+      </div>
+      <div class="timeline" id="timeline"></div>
+      <div class="input-bar">
+        <span class="ib-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></span>
+        <div class="ib-field">メッセージを入力</div>
+        <span class="ib-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg></span>
+      </div>
+      <div class="choices" id="choices"></div>
+      <div id="call-flash-holder"></div>
+    </div>
   </div>
 
   <!-- ============ Result Modal ============ -->
@@ -373,6 +332,7 @@
       <div class="result-kicker" id="result-kicker"></div>
       <div class="result-title" id="result-title"></div>
       <div class="result-desc" id="result-desc"></div>
+      <div class="result-unlock" id="result-unlock"></div>
       <div class="result-actions">
         <button class="result-btn retry" id="retry-btn">もう一度やり直す</button>
         <button class="result-btn back" id="backlist-btn">トーク一覧へ戻る</button>
@@ -380,112 +340,70 @@
     </div>
   </div>
 </div>
-<div id="hint">音が出ます 🔊 タップして開始</div>
 
 <script>
 (function(){
   "use strict";
 
   // ============================================================
-  // 1. サウンドエンジン (Web Audio API / 外部音声ファイル不使用)
+  // 0. ステータスバー時計
+  // ============================================================
+  function tickClock(){
+    const d = new Date();
+    document.getElementById('sb-time').textContent =
+      d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  tickClock(); setInterval(tickClock, 15000);
+
+  // ============================================================
+  // 1. サウンドエンジン
   // ============================================================
   const SoundEngine = (function(){
-    let ctx = null, master = null;
+    let ctx=null, master=null;
     function ensure(){
       if(!ctx){
         const AC = window.AudioContext || window.webkitAudioContext;
-        ctx = new AC();
-        master = ctx.createGain();
-        master.gain.value = 0.5;
-        master.connect(ctx.destination);
+        ctx = new AC(); master = ctx.createGain(); master.gain.value=.5; master.connect(ctx.destination);
       }
-      if(ctx.state === 'suspended') ctx.resume();
+      if(ctx.state==='suspended') ctx.resume();
       return ctx;
     }
     function unlock(){ try{ ensure(); }catch(e){} }
-
-    function tone(freq, start, dur, opt){
-      opt = opt || {};
-      const c = ensure();
-      const osc = c.createOscillator();
-      const gain = c.createGain();
-      osc.type = opt.type || 'sine';
-      osc.frequency.setValueAtTime(freq, start);
-      if(opt.freqEnd !== undefined){
-        osc.frequency.exponentialRampToValueAtTime(Math.max(opt.freqEnd,1), start+dur);
-      }
-      const peak = opt.gain !== undefined ? opt.gain : 0.3;
-      const attack = opt.attack !== undefined ? opt.attack : 0.01;
-      const release = opt.release !== undefined ? opt.release : dur*0.6;
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(peak, start+attack);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start+attack+release);
-      osc.connect(gain); gain.connect(master);
-      osc.start(start); osc.stop(start+dur+0.05);
+    function tone(freq,start,dur,opt){
+      opt=opt||{};
+      const c=ensure(); const osc=c.createOscillator(); const gain=c.createGain();
+      osc.type=opt.type||'sine'; osc.frequency.setValueAtTime(freq,start);
+      if(opt.freqEnd!==undefined) osc.frequency.exponentialRampToValueAtTime(Math.max(opt.freqEnd,1), start+dur);
+      const peak=opt.gain!==undefined?opt.gain:.3, attack=opt.attack!==undefined?opt.attack:.01, release=opt.release!==undefined?opt.release:dur*.6;
+      gain.gain.setValueAtTime(.0001,start); gain.gain.exponentialRampToValueAtTime(peak,start+attack); gain.gain.exponentialRampToValueAtTime(.0001,start+attack+release);
+      osc.connect(gain); gain.connect(master); osc.start(start); osc.stop(start+dur+.05);
     }
-
     function noiseBuffer(dur){
-      const c = ensure();
-      const size = Math.floor(c.sampleRate*dur);
-      const buf = c.createBuffer(1, size, c.sampleRate);
-      const data = buf.getChannelData(0);
-      for(let i=0;i<size;i++) data[i] = Math.random()*2-1;
+      const c=ensure(); const size=Math.floor(c.sampleRate*dur); const buf=c.createBuffer(1,size,c.sampleRate); const data=buf.getChannelData(0);
+      for(let i=0;i<size;i++) data[i]=Math.random()*2-1;
       return buf;
     }
-
     return {
       unlock,
-      receive(){
-        const c = ensure(); const now = c.currentTime;
-        tone(1046.5, now, 0.12, {gain:.25, attack:.005});
-        tone(1318.5, now+0.09, 0.15, {gain:.22, attack:.005});
+      receive(){ const c=ensure(),now=c.currentTime; tone(880,now,.11,{gain:.26,attack:.004}); tone(1760,now+.08,.14,{gain:.22,attack:.004}); },
+      send(){ const c=ensure(),now=c.currentTime; tone(700,now,.07,{freqEnd:900,gain:.17,attack:.004}); },
+      readChime(){ const c=ensure(),now=c.currentTime; tone(1500,now,.09,{gain:.1,attack:.006}); },
+      heartbeat(){ const c=ensure(),now=c.currentTime; tone(50,now,.16,{gain:.5,freqEnd:35,attack:.01,release:.11}); tone(48,now+.17,.16,{gain:.4,freqEnd:30,attack:.01,release:.11}); },
+      fearNoise(dur){ dur=dur||.8; const c=ensure(),now=c.currentTime;
+        const noise=c.createBufferSource(); noise.buffer=noiseBuffer(dur);
+        const ng=c.createGain(); ng.gain.setValueAtTime(.0001,now); ng.gain.exponentialRampToValueAtTime(.18,now+.05); ng.gain.exponentialRampToValueAtTime(.0001,now+dur);
+        const filt=c.createBiquadFilter(); filt.type='bandpass'; filt.frequency.value=1200; filt.Q.value=.7;
+        noise.connect(filt); filt.connect(ng); ng.connect(master); noise.start(now); noise.stop(now+dur);
+        tone(185,now,dur,{type:'sawtooth',gain:.12,attack:.02,release:dur*.8}); tone(196,now+.02,dur,{type:'sawtooth',gain:.1,attack:.02,release:dur*.8});
       },
-      send(){
-        const c = ensure(); const now = c.currentTime;
-        tone(700, now, 0.08, {freqEnd:900, gain:.18, attack:.005});
+      callEnd(){ const c=ensure(),now=c.currentTime;
+        const noise=c.createBufferSource(); noise.buffer=noiseBuffer(.6);
+        const g=c.createGain(); g.gain.setValueAtTime(.3,now); g.gain.exponentialRampToValueAtTime(.0001,now+.6);
+        const filt=c.createBiquadFilter(); filt.type='highpass'; filt.frequency.value=800;
+        noise.connect(filt); filt.connect(g); g.connect(master); noise.start(now); noise.stop(now+.6);
+        tone(320,now,.3,{type:'square',gain:.15,freqEnd:60});
       },
-      heartbeat(){
-        const c = ensure(); const now = c.currentTime;
-        tone(60, now, 0.15, {gain:.5, freqEnd:40, attack:.01, release:.1});
-        tone(55, now+0.16, 0.15, {gain:.4, freqEnd:35, attack:.01, release:.1});
-      },
-      fearNoise(dur){
-        dur = dur || 0.8;
-        const c = ensure(); const now = c.currentTime;
-        const noise = c.createBufferSource();
-        noise.buffer = noiseBuffer(dur);
-        const ng = c.createGain();
-        ng.gain.setValueAtTime(0.0001, now);
-        ng.gain.exponentialRampToValueAtTime(0.18, now+0.05);
-        ng.gain.exponentialRampToValueAtTime(0.0001, now+dur);
-        const filt = c.createBiquadFilter();
-        filt.type='bandpass'; filt.frequency.value=1200; filt.Q.value=0.7;
-        noise.connect(filt); filt.connect(ng); ng.connect(master);
-        noise.start(now); noise.stop(now+dur);
-        tone(185, now, dur, {type:'sawtooth', gain:.12, attack:.02, release:dur*.8});
-        tone(196, now+0.02, dur, {type:'sawtooth', gain:.1, attack:.02, release:dur*.8});
-      },
-      callEnd(){
-        const c = ensure(); const now = c.currentTime;
-        const noise = c.createBufferSource();
-        noise.buffer = noiseBuffer(0.6);
-        const g = c.createGain();
-        g.gain.setValueAtTime(0.3, now);
-        g.gain.exponentialRampToValueAtTime(0.0001, now+0.6);
-        const filt = c.createBiquadFilter();
-        filt.type='highpass'; filt.frequency.value=800;
-        noise.connect(filt); filt.connect(g); g.connect(master);
-        noise.start(now); noise.stop(now+0.6);
-        tone(320, now, 0.3, {type:'square', gain:.15, freqEnd:60});
-      },
-      alarm(){
-        const c = ensure(); const now = c.currentTime;
-        for(let i=0;i<4;i++){
-          const t = now+i*0.3;
-          tone(880, t, 0.15, {type:'square', gain:.2});
-          tone(660, t+0.15, 0.15, {type:'square', gain:.2});
-        }
-      }
+      alarm(){ const c=ensure(),now=c.currentTime; for(let i=0;i<4;i++){ const t=now+i*.3; tone(880,t,.15,{type:'square',gain:.2}); tone(660,t+.15,.15,{type:'square',gain:.2}); } }
     };
   })();
 
@@ -493,6 +411,7 @@
     switch(name){
       case 'receive': SoundEngine.receive(); break;
       case 'send': SoundEngine.send(); break;
+      case 'readChime': SoundEngine.readChime(); break;
       case 'heartbeat': SoundEngine.heartbeat(); break;
       case 'noise': SoundEngine.fearNoise(); break;
       case 'callEnd': SoundEngine.callEnd(); break;
@@ -501,327 +420,462 @@
   }
 
   // ============================================================
-  // 2. 不穏な画像プレースホルダー (SVG生成)
+  // 2. 早送り (FAST) 制御つき wait()
+  // ============================================================
+  let FAST = false;
+  function wait(ms){
+    const real = FAST ? Math.min(Math.max(ms*0.06, 40), 350) : ms;
+    return new Promise(r=>setTimeout(r, real));
+  }
+  function readDelay(){ return 1500 + Math.random()*1500; }
+  function typingDelay(){ return 2000 + Math.random()*3000; }
+
+  // ============================================================
+  // 3. 不穏な画像プレースホルダー
   // ============================================================
   function eerieSvg(kind){
+    const grad = (id,c1,c2)=>`<radialGradient id="${id}" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></radialGradient>`;
     switch(kind){
-      case 'doorscope': return `
-        <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <radialGradient id="ds1" cx="50%" cy="50%" r="65%">
-              <stop offset="0%" stop-color="#3a3a3a"/><stop offset="70%" stop-color="#0a0a0a"/><stop offset="100%" stop-color="#000"/>
-            </radialGradient>
-          </defs>
-          <rect width="300" height="200" fill="#000"/>
-          <circle cx="150" cy="100" r="90" fill="url(#ds1)"/>
-          <circle cx="150" cy="100" r="92" fill="none" stroke="#111" stroke-width="14"/>
-          <rect x="60" y="150" width="180" height="8" fill="#1a1a1a" opacity=".6"/>
-        </svg>`;
-      case 'eyes': return `
-        <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-          <defs><radialGradient id="ev1" cx="50%" cy="55%" r="70%"><stop offset="40%" stop-color="transparent"/><stop offset="100%" stop-color="#000" stop-opacity=".85"/></radialGradient></defs>
-          <rect width="300" height="200" fill="#050505"/>
-          <rect x="0" y="120" width="300" height="10" fill="#161616"/>
-          <ellipse cx="130" cy="115" rx="10" ry="6" fill="#e8e2c8"/>
-          <ellipse cx="166" cy="115" rx="10" ry="6" fill="#e8e2c8"/>
-          <circle cx="131" cy="115" r="3" fill="#1a1200"/>
-          <circle cx="167" cy="115" r="3" fill="#1a1200"/>
-          <rect x="0" y="0" width="300" height="200" fill="url(#ev1)"/>
-        </svg>`;
-      case 'cctv': return `
-        <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-          <rect width="300" height="200" fill="#0a0f0a"/>
-          ${Array.from({length:10}).map((_,i)=>`<rect x="0" y="${i*20}" width="300" height="1" fill="#00ff66" opacity=".06"/>`).join('')}
-          <rect x="20" y="20" width="70" height="45" fill="none" stroke="#00ff66" stroke-width="1.5" opacity=".5"/>
-          <rect x="170" y="30" width="16" height="80" fill="#111" stroke="#00ff66" stroke-width="1" opacity=".6"/>
-          <rect x="150" y="105" width="56" height="8" fill="#111" stroke="#00ff66" stroke-width="1" opacity=".6"/>
-          <rect x="170" y="10" width="16" height="24" fill="#050505" stroke="#00ff66" stroke-width="1" opacity=".8"/>
-          <text x="14" y="190" fill="#00ff66" font-size="12" opacity=".7" font-family="monospace">REC ● CAM-03</text>
-          <rect width="300" height="200" fill="#00ff66" opacity=".03"/>
-        </svg>`;
-      case 'handprints': {
-        const prints=[{x:40,y:60,r:-15},{x:120,y:40,r:20},{x:200,y:70,r:-5},{x:80,y:120,r:10},{x:220,y:130,r:-25}];
-        return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-          <rect width="300" height="200" fill="#141414"/>
-          <rect width="300" height="200" fill="#8899aa" opacity=".08"/>
-          ${prints.map(p=>`<g transform="translate(${p.x},${p.y}) rotate(${p.r})" opacity=".55">
-              <ellipse cx="0" cy="14" rx="9" ry="13" fill="#c9d6e0"/>
-              <ellipse cx="-11" cy="-2" rx="3" ry="9" fill="#c9d6e0"/>
-              <ellipse cx="-4" cy="-8" rx="3" ry="10" fill="#c9d6e0"/>
-              <ellipse cx="4" cy="-8" rx="3" ry="10" fill="#c9d6e0"/>
-              <ellipse cx="11" cy="-2" rx="3" ry="9" fill="#c9d6e0"/>
-            </g>`).join('')}
-        </svg>`;
-      }
-      case 'tunnel': return `
-        <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-          <defs><radialGradient id="tn1" cx="50%" cy="45%" r="60%"><stop offset="0%" stop-color="#5a5a5a"/><stop offset="100%" stop-color="#050505"/></radialGradient></defs>
-          <rect width="300" height="200" fill="#020202"/>
-          <ellipse cx="150" cy="90" rx="110" ry="80" fill="url(#tn1)" opacity=".9"/>
-          <path d="M60 200 Q150 60 240 200 Z" fill="#000" opacity=".85"/>
-          <rect x="0" y="185" width="300" height="15" fill="#0d0d0d"/>
-          <circle cx="150" cy="95" r="55" fill="#111" opacity=".6"/>
-        </svg>`;
+      case 'doorscope': return `<svg viewBox="0 0 300 200"><defs>${grad('g1','#3a3a3a','#000')}</defs><rect width="300" height="200" fill="#000"/><circle cx="150" cy="100" r="90" fill="url(#g1)"/><circle cx="150" cy="100" r="92" fill="none" stroke="#111" stroke-width="14"/></svg>`;
+      case 'eyes': return `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#050505"/><rect x="0" y="120" width="300" height="10" fill="#161616"/><ellipse cx="130" cy="115" rx="10" ry="6" fill="#e8e2c8"/><ellipse cx="166" cy="115" rx="10" ry="6" fill="#e8e2c8"/><circle cx="131" cy="115" r="3" fill="#1a1200"/><circle cx="167" cy="115" r="3" fill="#1a1200"/></svg>`;
+      case 'cctv': return `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#0a0f0a"/>${Array.from({length:10}).map((_,i)=>`<rect y="${i*20}" width="300" height="1" fill="#00ff66" opacity=".06"/>`).join('')}<rect x="150" y="40" width="70" height="60" fill="none" stroke="#00ff66" stroke-width="1.3" opacity=".55"/><text x="14" y="190" fill="#00ff66" font-size="12" opacity=".7" font-family="monospace">REC ● CAM</text></svg>`;
+      case 'handprints': { const prints=[{x:40,y:60,r:-15},{x:120,y:40,r:20},{x:200,y:70,r:-5},{x:80,y:120,r:10},{x:220,y:130,r:-25}];
+        return `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#141414"/>${prints.map(p=>`<g transform="translate(${p.x},${p.y}) rotate(${p.r})" opacity=".55"><ellipse cx="0" cy="14" rx="9" ry="13" fill="#c9d6e0"/><ellipse cx="-11" cy="-2" rx="3" ry="9" fill="#c9d6e0"/><ellipse cx="-4" cy="-8" rx="3" ry="10" fill="#c9d6e0"/><ellipse cx="4" cy="-8" rx="3" ry="10" fill="#c9d6e0"/><ellipse cx="11" cy="-2" rx="3" ry="9" fill="#c9d6e0"/></g>`).join('')}</svg>`; }
+      case 'tunnel': return `<svg viewBox="0 0 300 200"><defs>${grad('g2','#5a5a5a','#050505')}</defs><rect width="300" height="200" fill="#020202"/><ellipse cx="150" cy="90" rx="110" ry="80" fill="url(#g2)" opacity=".9"/><path d="M60 200 Q150 60 240 200 Z" fill="#000" opacity=".85"/></svg>`;
+      case 'shadow': return `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#0a0a0a"/><ellipse cx="150" cy="140" rx="34" ry="60" fill="#000"/><ellipse cx="150" cy="70" rx="20" ry="22" fill="#000"/></svg>`;
+      case 'static': return `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#111"/>${Array.from({length:60}).map(()=>`<rect x="${Math.random()*300}" y="${Math.random()*200}" width="${2+Math.random()*10}" height="1.5" fill="#888" opacity="${Math.random()*.6}"/>`).join('')}</svg>`;
       default: return '';
     }
   }
 
   // ============================================================
-  // 3. シナリオデータ（3本 / バランス型構成）
+  // 4. キャラクター・シナリオデータ（30人）
   // ============================================================
-  const scenarios = [
-    {
-      id:'doorscope', title:'真夜中のドアスコープ', description:'後輩・アオイからの深夜SOS',
-      character:{ name:'アオイ', emoji:'🌙', color:'#f472b6' },
-      startNodeId:'start',
+  const COLORS = ['#f472b6','#38bdf8','#facc15','#a78bfa','#fb923c','#4ade80','#f87171','#22d3ee','#e879f9','#fbbf24'];
+  function colorFor(i){ return COLORS[i % COLORS.length]; }
+
+  // ---- キャラ1: アオイ（人コワ）完全版 ----
+  const char01 = {
+    id:'char01', name:'アオイ', role:'後輩', genre:'人コワ・サスペンス', title:'真夜中のドアスコープ',
+    emoji:'🌙', color:colorFor(0), startNodeId:'start',
+    nodes:{
+      start:{ messages:[
+          {sender:'them', text:'先輩起きてますか？'},
+          {sender:'them', text:'変な時間にすいません'},
+          {sender:'them', text:'うちの部屋のドア、さっきからずっとガチャガチャされてて…', effect:'shake'},
+        ], choices:[
+          {label:'誰か確かめろ、声出してみろ', next:'c1_bad_voice'},
+          {label:'絶対に声出すな。鍵はかかってるか？', next:'mid'},
+        ] },
+      c1_bad_voice:{ messages:[
+          {sender:'them', text:'……「誰ですか」って言っちゃいました', effect:'shake'},
+          {sender:'system', text:'ガチャガチャという音が、ピタリと止まる', effect:'flash'},
+          {sender:'them', text:'…来た人、今ドアの前で笑ってる声が聞こえます', glitch:true},
+        ], autoNext:'end_bad_voice', autoDelay:1400 },
+      end_bad_voice:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'声を出したことで、ドアの向こうの何者かはアオイの存在を確信した。それを最後に、返信は途絶えた。'} },
+      mid:{ messages:[
+          {sender:'me', text:'鍵は閉まってるか確認して。声は絶対出すな'},
+          {sender:'them', text:'鍵は閉まってます'},
+          {sender:'them', text:'でもドアスコープの覗き穴、外から指で塞がれてる気がして…', effect:'shake'},
+        ], choices:[
+          {label:'息殺して覗き穴から外見ろ', next:'reveal'},
+          {label:'ドアから離れてクローゼットに隠れろ', next:'reveal'},
+        ] },
+      reveal:{ messages:[
+          {sender:'them', text:'…見ました'},
+          {sender:'them', text:'誰もいない…って思ったら…'},
+          {sender:'them', text:'ポストの投函口の隙間から、男がこっち見上げて笑ってる', effect:'flash'},
+          {sender:'system', text:'', image:{kind:'eyes', caption:'郵便受けの隙間から見上げる男'}, effect:'shake'},
+          {sender:'them', text:'声出したら殺される…！押入れの奥に隠れます、音立てられないから返事待って'},
+          {type:'actionWait', seconds:30, label:'アオイが息を潜めています…'},
+        ], autoNext:'climax' },
+      climax:{ messages:[
+          {sender:'them', text:'…外で何か工具の音がする', effect:'shake'},
+          {sender:'them', text:'チェーン外そうとしてる！！どうすればいいですか！？', effect:'shake-hard'},
+        ], choices:[
+          {label:'ベランダから隣の部屋に助け求めろ！', next:'end_bad_balcony'},
+          {label:'電気消したまま110番してスマホを布団で覆え！', next:'end_survive'},
+        ] },
+      end_bad_balcony:{ messages:[
+          {sender:'them', text:'ベランダに出ます…！'},
+          {sender:'system', text:'ガチャリ、とチェーンが切れる音', sound:'noise', effect:'flash'},
+          {sender:'them', text:'あ', glitch:true},
+          {sender:'them', text:'はいってき', glitch:true},
+          {sender:'them', text:'……', glitch:true},
+        ], autoNext:'end_bad_final', autoDelay:1600 },
+      end_bad_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'ベランダに出た隙に、男は玄関のチェーンを断ち切って侵入した。既読がついたまま、アオイの返信は途絶えた。'} },
+      end_survive:{ messages:[
+          {sender:'them', text:'電気消したまま110番しました…スマホ、布団で覆ってます'},
+          {sender:'system', text:'遠くからパトカーのサイレンが近づいてくる'},
+          {sender:'them', text:'先輩…警察来ました…！震えが止まりません…ありがとうございました…！'},
+        ], autoNext:'end_survive_final', autoDelay:1400 },
+      end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
+        desc:'冷静な指示で声を抑え続けたアオイ。暗闇の中の通報が功を奏し、警察が不審者を確保した。'} },
+    }
+  };
+
+  // ---- キャラ2: タクヤ（オカルト）完全版 ----
+  const char02 = {
+    id:'char02', name:'タクヤ', role:'友人', genre:'現代怪異・オカルト', title:'霧の旧トンネル',
+    emoji:'🚗', color:colorFor(1), startNodeId:'start',
+    nodes:{
+      start:{ messages:[
+          {sender:'them', text:'おい助けてくれ'},
+          {sender:'them', text:'山道で車止まった'},
+          {sender:'them', text:'旧水草トンネルの手前なんだけど、霧で前後が全く見えん', effect:'shake'},
+        ], choices:[
+          {label:'ハザード焚いてボンネット開けてみろ', next:'c1_bad_hood'},
+          {label:'絶対車から出るな。ドアロックしろ', next:'mid'},
+        ] },
+      c1_bad_hood:{ messages:[
+          {sender:'them', text:'外出ます…ハザード点けて'},
+          {sender:'system', text:'霧の向こうで何かが動く気配', effect:'shake'},
+          {sender:'them', text:'…足音、複数、聞こえる', glitch:true},
+        ], autoNext:'end_bad_hood', autoDelay:1400 },
+      end_bad_hood:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'車外に出た瞬間、霧の中から複数の足音が近づいてきた。それを最後に、タクヤの反応は途絶えた。'} },
+      mid:{ messages:[
+          {sender:'them', text:'言われた通り鍵かけた'},
+          {sender:'them', text:'てかナビのGPS狂って画面がチカチカしてる', glitch:true, effect:'shake'},
+          {sender:'them', text:'おい嘘だろ'},
+          {sender:'them', text:'トンネルの出口側から誰か歩いてくる', effect:'shake'},
+          {sender:'them', text:'白っぽい服着た女だ'},
+          {sender:'them', text:'裸足で霧の中歩いてる…', effect:'shake-hard'},
+        ], choices:[
+          {label:'クラクション鳴らして威嚇しろ！', next:'end_bad_horn'},
+          {label:'ヘッドライトも社内灯も全部消せ！伏せろ！', next:'hide'},
+        ] },
+      end_bad_horn:{ messages:[
+          {sender:'system', text:'パアアアアアアン', sound:'noise', effect:'shake-hard'},
+          {sender:'system', text:'フロントガラスに、女が飛び乗る音', effect:'flash'},
+          {sender:'them', text:'$#見つか%った', glitch:true},
+        ], autoNext:'end_bad_horn_final', autoDelay:1600 },
+      end_bad_horn_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'クラクションが女を呼び寄せた。フロントガラスに何かが飛び乗る音を最後に、通信は途絶えた。'} },
+      hide:{ messages:[
+          {sender:'them', text:'消した…！フロントガラスのすぐ横通っていく…息止める…'},
+          {type:'actionWait', seconds:25, label:'タクヤが息を潜めています…'},
+        ], autoNext:'climax' },
+      climax:{ messages:[
+          {sender:'them', text:'通り過ぎた…'},
+          {sender:'them', text:'でも車の後ろで止まった', effect:'shake'},
+          {sender:'them', text:'トランクをコン、コン、って叩いてる…', effect:'shake-hard'},
+        ], choices:[
+          {label:'今だ、エンジンかけ直してアクセル踏め！', next:'end_survive'},
+          {label:'そのまま女が立ち去るまで待て', next:'end_bad_wait'},
+        ] },
+      end_bad_wait:{ messages:[
+          {sender:'system', text:'トランクの音が、急に止む', effect:'flash'},
+          {sender:'system', text:'運転席の窓に、血塗れの手が叩きつけられる', sound:'noise', effect:'shake-hard'},
+          {sender:'them', text:'$#見つか%った', glitch:true},
+        ], autoNext:'end_bad_wait_final', autoDelay:1600 },
+      end_bad_wait_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'待ち続けた結果、静寂の後に運転席の窓へ手が叩きつけられた。文字化けしたメッセージを最後に、通信は途絶えた。'} },
+      end_survive:{ messages:[
+          {sender:'them', text:'エンジンかかった！アクセル踏む！！'},
+          {sender:'system', text:'バックミラーに、何百もの手形が浮かび上がる', effect:'shake-hard'},
+          {sender:'them', text:'逃げ切れた…街の明かり見えた…マジで死ぬかと思った…！'},
+        ], autoNext:'end_survive_final', autoDelay:1400 },
+      end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
+        desc:'女がトランクに気を取られた一瞬の隙を突き、タクヤは急発進でトンネルを脱出した。'} },
+    }
+  };
+
+  // ---- キャラ3: リョウ（密室）完全版 ----
+  const char03 = {
+    id:'char03', name:'リョウ', role:'バイト同僚', genre:'極限密室・パニック', title:'深夜ワンオペの閉店後',
+    emoji:'🏪', color:colorFor(2), startNodeId:'start',
+    nodes:{
+      start:{ messages:[
+          {sender:'them', text:'店長、まだ起きてますか？'},
+          {sender:'them', text:'深夜の棚卸し終わって施錠したんですけど'},
+          {sender:'them', text:'店内から変な音します', effect:'shake'},
+        ], choices:[
+          {label:'防犯カメラのモニター見ろ', next:'mid'},
+          {label:'気のせいだろ、早く帰れ', next:'c1_bad_ignore'},
+        ] },
+      c1_bad_ignore:{ messages:[
+          {sender:'them', text:'…そうします、帰りますね'},
+          {sender:'system', text:'裏口のドアが、外から開かれる音', sound:'noise', effect:'shake-hard'},
+          {sender:'them', text:'え', glitch:true},
+        ], autoNext:'end_bad_ignore', autoDelay:1400 },
+      end_bad_ignore:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'警戒を促さなかったことで、リョウは無防備なまま裏口へ向かってしまった。それを最後に返信は途絶えた。'} },
+      mid:{ messages:[
+          {sender:'them', text:'カメラ見ました'},
+          {sender:'system', text:'', image:{kind:'cctv', caption:'防犯カメラ：酒コーナー付近'}},
+          {sender:'them', text:'奥のお酒コーナーの死角に、黒いコート着た奴がずっと立ってます', effect:'shake'},
+          {sender:'them', text:'昼間から店内に潜んでたっぽい…', effect:'shake-hard'},
+        ], choices:[
+          {label:'バックヤードの事務所に内鍵かけて閉じこもれ', next:'hide'},
+          {label:'バット持って正面から外へ出ろ', next:'end_bad_bat'},
+        ] },
+      end_bad_bat:{ messages:[
+          {sender:'them', text:'バット持って正面に向かいます…！'},
+          {sender:'system', text:'正面の照明が、突然落ちる', sound:'noise', effect:'flash'},
+          {sender:'them', text:'だれ', glitch:true},
+        ], autoNext:'end_bad_bat_final', autoDelay:1600 },
+      end_bad_bat_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'正面から立ち向かったリョウ。しかし暗闇の中で照明が落ち、それを最後に通信は途絶えた。'} },
+      hide:{ messages:[
+          {sender:'them', text:'事務所入って鍵閉めました。外の様子伺ってきます'},
+          {type:'actionWait', seconds:30, label:'リョウが事務所に立てこもっています…'},
+        ], autoNext:'climax' },
+      climax:{ messages:[
+          {sender:'them', text:'事務所のドアノブがガチャガチャされてる', effect:'shake'},
+          {sender:'them', text:'鍵開けようとしてる', effect:'shake-hard'},
+          {sender:'them', text:'どうしよう…', effect:'shake-hard'},
+        ], choices:[
+          {label:'警報ベルのボタン押して裏口の非常扉から逃げろ！', next:'end_survive'},
+          {label:'ロッカーの中に隠れてやり過ごせ！', next:'end_bad_locker'},
+        ] },
+      end_bad_locker:{ messages:[
+          {sender:'them', text:'ロッカーの中に隠れます…'},
+          {sender:'system', text:'ロッカーの扉の隙間から、外を覗く目と目が合う', effect:'flash'},
+          {sender:'them', text:'みーつけた', glitch:true},
+        ], autoNext:'end_bad_locker_final', autoDelay:1600 },
+      end_bad_locker_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+        desc:'ロッカーの隙間から、侵入者と目が合ってしまった。「みーつけた」のメッセージを最後に、通信は途絶えた。'} },
+      end_survive:{ messages:[
+          {sender:'them', text:'警報ベル押します…！'},
+          {sender:'system', text:'けたたましい警報音が店内に響き渡る', sound:'alarm', effect:'shake-hard'},
+          {sender:'them', text:'今のうちに裏口の非常扉から出ます！'},
+          {sender:'them', text:'外に出ました…通報します。ありがとうございました…！'},
+        ], autoNext:'end_survive_final', autoDelay:1400 },
+      end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
+        desc:'大音量の非常ベルに驚いた不審者は逃走。リョウは裏口の非常扉から無事脱出し、通報に成功した。'} },
+    }
+  };
+
+  // ---- テンプレートキャラ生成（char04〜char30） ----
+  const GENRE_FLAVOR = {
+    'horror': { bg:'shadow', bgAlt:'static', place:'部屋', verb:'物音' },
+    'occult': { bg:'static', bgAlt:'shadow', place:'その場所', verb:'気配' },
+    'confine':{ bg:'cctv', bgAlt:'static', place:'閉ざされた空間', verb:'足音' },
+    'psycho': { bg:'static', bgAlt:'shadow', place:'その状況', verb:'違和感' },
+  };
+  const TEMPLATE_NAMES = ['ミサキ','ケンタ','ユイ','ソウタ','ハルカ','レン','ナツキ','ダイキ','マユ','コウキ','アヤカ','ショウ','リナ','ユウト','サキ','タイガ','エマ','リク','ノゾミ','ハヤト','ミク','カイト','ホノカ','ジュン','アイ','マサト','ウミ'];
+
+  function buildTemplateScenario(idx, name, title, genreKey, genreLabel){
+    const f = GENRE_FLAVOR[genreKey];
+    return {
+      id:'char'+String(idx).padStart(2,'0'), name, role:'SOS', genre:genreLabel, title,
+      emoji: ['👤','🌀','🔒','🧩'][idx%4], color: colorFor(idx), startNodeId:'start',
       nodes:{
         start:{ messages:[
-            {sender:'them', text:'先輩、起きてますか？', delay:1200, sound:'receive'},
-            {sender:'them', text:'さっきから誰かが鍵穴をガチャガチャ触ってて…怖いです', delay:1800, sound:'receive', effect:'shake'},
-            {sender:'them', text:'インターホンも鳴らさずに、ずっと…', delay:2000, sound:'receive'},
-            {sender:'system', text:'アオイの部屋のドアノブが、静かに揺れている', delay:1500},
-          ],
-          choices:[
-            {label:'電気を消して、居留守を使え', next:'silence_path'},
-            {label:'「誰ですか！」と大声で声をかけろ', next:'voice_bad'},
-          ]
-        },
-        voice_bad:{ messages:[
-            {sender:'me', text:'「誰ですか！」って大声で言ってみて！', delay:300, sound:'send'},
-            {sender:'them', text:'……言いました……ガチャガチャ、止まりました', delay:2200, sound:'receive'},
-            {sender:'them', text:'でも今、チェーンの金属音が…', delay:1800, sound:'receive', effect:'shake'},
-            {sender:'system', text:'ガチャン、と何かが切断される音', delay:1400, sound:'noise'},
-            {sender:'them', text:'せんぱ', delay:900, sound:'receive', effect:'flash', glitch:true},
-            {sender:'system', text:'既読　20:14', delay:1000},
-            {sender:'system', text:'それ以降、アオイからの返信はない', delay:1800},
-          ], autoNext:'end_voice_bad', autoDelay:2200 },
-        end_voice_bad:{ messages:[], ending:{type:'bad', title:'通信途絶',
-          desc:'声を出したことで、侵入者はアオイの存在を確信した。チェーンは切断され、部屋のドアが開けられる音を最後に、アオイの反応は途絶えた。'} },
-        silence_path:{ messages:[
-            {sender:'me', text:'電気消して、絶対音立てないで。じっとしてて', delay:300, sound:'send'},
-            {sender:'them', text:'……消しました。真っ暗です', delay:2200, sound:'receive'},
-            {sender:'them', text:'ガチャガチャ…止まった、気がします', delay:2000, sound:'receive'},
-            {sender:'them', text:'ドアスコープ、そっと覗いてみます', delay:1800, sound:'receive'},
-            {sender:'them', text:'……誰もいません。廊下、誰もいない', delay:2200, sound:'receive'},
-            {sender:'them', text:'あ、でも郵便受けの隙間から…', delay:1800, sound:'receive'},
-            {sender:'them', text:'……誰かがこっちを見上げてます', delay:2000, sound:'receive', effect:'flash'},
-            {sender:'system', text:'', image:{kind:'eyes', caption:'郵便受けの隙間から見上げる目'}, delay:1000, effect:'shake'},
-          ],
-          choices:[
-            {label:'カギを二重ロックし、音を立てずに110番通報させる', next:'survive_route'},
-            {label:'怖くて我慢できず、ドアを開けて確認させる', next:'open_door_bad'},
-          ]
-        },
-        survive_route:{ messages:[
-            {sender:'me', text:'ドア絶対開けないで。鍵を二重にかけて、音を立てずに110番して', delay:300, sound:'send'},
-            {sender:'them', text:'……二重ロックしました。今、小声で警察に電話してます', delay:2500, sound:'receive'},
-            {sender:'system', text:'遠くからパトカーのサイレンが近づいてくる', delay:2200},
-            {sender:'them', text:'警察が来てくれました…！郵便受けの前で、不審な男が確保されたそうです', delay:2500, sound:'receive'},
-            {sender:'them', text:'先輩のおかげです。ありがとうございました…', delay:2000, sound:'receive'},
-          ], autoNext:'end_survive', autoDelay:1800 },
-        end_survive:{ messages:[], ending:{type:'success', title:'救出成功',
-          desc:'冷静な指示で、アオイは声を上げず不審者を刺激しなかった。二重ロックと通報が功を奏し、不審者は警察に確保された。'} },
-        open_door_bad:{ messages:[
-            {sender:'them', text:'もう限界です…確認してきます', delay:1500, sound:'receive'},
-            {sender:'me', text:'だめ！開けちゃだめ！', delay:300, sound:'send'},
-            {sender:'system', text:'ガチャッ……ドアチェーンが外される音', delay:1800, effect:'shake-hard', sound:'noise'},
-            {sender:'them', text:'きゃ', delay:1000, effect:'flash', glitch:true},
-            {sender:'system', text:'それ以降、アオイからの返信はない', delay:2000},
-          ], autoNext:'end_open_door_bad', autoDelay:2200 },
-        end_open_door_bad:{ messages:[], ending:{type:'bad', title:'通信途絶',
-          desc:'恐怖に耐えきれず自ら確認しにいったアオイ。ドアを開けた瞬間、侵入を許してしまった。'} },
-      }
-    },
-    {
-      id:'tunnel', title:'霧の旧トンネル', description:'悪友・タクヤからの深夜SOS',
-      character:{ name:'タクヤ', emoji:'🚗', color:'#38bdf8' },
-      startNodeId:'start',
-      nodes:{
-        start:{ messages:[
-            {sender:'them', text:'車、動かねえ', delay:1200, sound:'receive'},
-            {sender:'them', text:'旧トンネルの前でエンストした。霧で前がほぼ見えん', delay:1800, sound:'receive'},
-            {sender:'them', text:'てか、何か…立ってる気がする', delay:2200, sound:'receive', effect:'shake'},
-            {sender:'system', text:'', image:{kind:'tunnel', caption:'霧に沈む封鎖されたトンネル'}, delay:1200},
-          ],
-          choices:[
-            {label:'ライトを全部消して、息を潜めろ', next:'survive_path'},
-            {label:'パニックになって外に逃げろ', next:'run_bad'},
-          ]
-        },
-        run_bad:{ messages:[
-            {sender:'them', text:'む、無理だ！外に出る！！', delay:1200, sound:'receive'},
-            {sender:'me', text:'待て！車から出るな！', delay:300, sound:'send'},
-            {sender:'them', text:'だれか$#%る', delay:1500, sound:'receive', glitch:true, effect:'shake-hard'},
-            {sender:'them', text:'うしろみ$るな', delay:1200, sound:'receive', glitch:true, effect:'shake-hard'},
-            {sender:'system', text:'通話が強制切断されました', delay:1600, sound:'callEnd', effect:'flash'},
-          ], autoNext:'end_run_bad', autoDelay:2200 },
-        end_run_bad:{ messages:[], ending:{type:'bad', title:'通信途絶',
-          desc:'パニックで車外へ飛び出したタクヤ。霧の中に消えていく足音を最後に、連絡は途絶えた。'} },
-        survive_path:{ messages:[
-            {sender:'me', text:'ライト全部消して。声も出すな。息を潜めてじっとしてろ', delay:300, sound:'send'},
-            {sender:'them', text:'……消した……真っ暗だ', delay:2000, sound:'receive'},
-            {sender:'them', text:'なにか$###てくる', delay:1800, sound:'receive', glitch:true, effect:'shake'},
-            {sender:'system', text:'トンネルの奥から、濡れた白い服の女がボンネットに向かって歩いてくる', delay:2200, effect:'shake-hard'},
-          ],
-          choices:[
-            {label:'そのまま動かず、女が通り過ぎるのを待たせる', next:'end_survive'},
-            {label:'我慢できずクラクションを鳴らさせる', next:'horn_bad'},
-          ]
-        },
+            {sender:'them', text:name+'「聞こえますか…？」'},
+            {sender:'them', text:'『'+title+'』の状況に巻き込まれました', effect:'shake'},
+            {sender:'them', text:'助けてください、'+f.verb+'が止まらないんです…'},
+          ], choices:[
+            {label:'落ち着いて周囲を確認させろ', next:'mid'},
+            {label:'今すぐそこから飛び出させろ', next:'c1_bad'},
+          ] },
+        c1_bad:{ messages:[
+            {sender:'them', text:'今、飛び出します…！'},
+            {sender:'system', text:f.place+'の奥で、何かが動く', sound:'noise', effect:'shake-hard'},
+            {sender:'them', text:'……', glitch:true},
+          ], autoNext:'end_bad1', autoDelay:1400 },
+        end_bad1:{ messages:[], ending:{type:'bad', title:'通信途絶',
+          desc:name+'は衝動的に動いてしまった。それを最後に、返信は途絶えた。'} },
+        mid:{ messages:[
+            {sender:'them', text:'…わかりました、落ち着きます'},
+            {sender:'system', text:'', image:{kind:f.bg, caption:f.place+'の様子'}, effect:'shake'},
+            {sender:'them', text:'…何かがこちらに気づいたかもしれません', effect:'shake-hard'},
+            {sender:'them', text:'少しの間、じっとしています。物音立てられないので待ってて…'},
+            {type:'actionWait', seconds: 15 + (idx%4)*5, label:name+'が'+f.place+'で息を潜めています…'},
+          ], autoNext:'climax' },
+        climax:{ messages:[
+            {sender:'them', text:'動きがありました', effect:'shake'},
+            {sender:'them', text:'こっちに向かってきてる気がします…！どうすれば！？', effect:'shake-hard'},
+          ], choices:[
+            {label:'一気に脱出ルートへ走らせろ！', next:'end_survive'},
+            {label:'物陰でやり過ごさせろ', next:'end_bad2'},
+          ] },
+        end_bad2:{ messages:[
+            {sender:'them', text:'物陰に隠れます…'},
+            {sender:'system', text:'', image:{kind:f.bgAlt, caption:'異常の接近'}, effect:'flash'},
+            {sender:'them', text:'みつかった', glitch:true},
+          ], autoNext:'end_bad2_final', autoDelay:1600 },
+        end_bad2_final:{ messages:[], ending:{type:'bad', title:'通信途絶',
+          desc:'物陰に隠れきれず、'+name+'は見つかってしまった。それを最後に、通信は途絶えた。'} },
         end_survive:{ messages:[
-            {sender:'them', text:'……通り、過ぎた……', delay:2500, sound:'receive'},
-            {sender:'system', text:'エンジンが独りでに再始動する', delay:2000},
-            {sender:'them', text:'エンジンかかった！！今すぐ引き返す！', delay:1800, sound:'receive'},
-          ], autoNext:'end_survive_final', autoDelay:1800 },
+            {sender:'them', text:'走ります…！'},
+            {sender:'system', text:'背後の気配が、少しずつ遠ざかっていく'},
+            {sender:'them', text:'抜け出せました…！本当にありがとうございました…！'},
+          ], autoNext:'end_survive_final', autoDelay:1400 },
         end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
-          desc:'ライトを消し、物音一つ立てずに耐え抜いたタクヤ。女がすれ違った瞬間、エンジンが再始動し、無事にトンネルを脱出した。'} },
-        horn_bad:{ messages:[
-            {sender:'them', text:'む、無理だ！クラクション鳴らす！！', delay:1200, sound:'receive'},
-            {sender:'system', text:'パアアアアアアン', delay:800, sound:'noise', effect:'shake-hard'},
-            {sender:'system', text:'', image:{kind:'handprints', caption:'窓ガラスに無数の手形'}, delay:1500, effect:'flash'},
-            {sender:'them', text:'いやだ$$$ あけ##', delay:1200, glitch:true},
-            {sender:'system', text:'通話が強制切断されました', delay:1500, sound:'callEnd'},
-          ], autoNext:'end_horn_bad', autoDelay:2200 },
-        end_horn_bad:{ messages:[], ending:{type:'bad', title:'通信途絶',
-          desc:'クラクションの音に反応し、無数の手形が車を取り囲んだ。それを最後に、タクヤの反応は途絶えた。'} },
+          desc:name+'は冷静な指示のもと、危機を脱して無事に生還した。'} },
       }
-    },
-    {
-      id:'nightshift', title:'深夜ワンオペの閉店後', description:'バイト同僚・リョウからの深夜SOS',
-      character:{ name:'リョウ', emoji:'🏪', color:'#facc15' },
-      startNodeId:'start',
-      nodes:{
-        start:{ messages:[
-            {sender:'them', text:'戸締まり終わったはずなのに、裏の通路から足音がする', delay:1200, sound:'receive'},
-            {sender:'them', text:'防犯カメラ見たら、客用トイレのドアが勝手に開いてる…', delay:2000, sound:'receive', effect:'shake'},
-            {sender:'system', text:'', image:{kind:'cctv', caption:'防犯カメラ：客用トイレ前の映像'}, delay:1200},
-            {sender:'them', text:'事務所に鍵かけて閉じこもってます…誰かいるっぽい', delay:2000, sound:'receive'},
-            {sender:'system', text:'事務所のドアノブが、外からゆっくりと下げられる', delay:1800, effect:'shake-hard'},
-          ],
-          choices:[
-            {label:'非常警報ベルを鳴らして、非常口から外へ走らせろ', next:'alarm_path'},
-            {label:'ロッカーに隠れて息を潜めさせろ', next:'locker_bad'},
-          ]
-        },
-        locker_bad:{ messages:[
-            {sender:'them', text:'ロッカーの中に隠れました…音立てないようにします', delay:2000, sound:'receive'},
-            {sender:'system', text:'事務所のドアが開く音', delay:1800, effect:'shake'},
-            {sender:'them', text:'誰か…ロッカーに近づいてきて', delay:1800, sound:'receive', effect:'shake'},
-            {sender:'system', text:'ガチャン。ロッカーの外から南京錠がかけられる音', delay:1800, sound:'noise'},
-            {sender:'them', text:'閉じ込められた…出して……', delay:1500, glitch:true},
-            {sender:'system', text:'火災報知器が鳴り響く', delay:1500, sound:'alarm', effect:'flash'},
-          ], autoNext:'end_locker_bad', autoDelay:2200 },
-        end_locker_bad:{ messages:[], ending:{type:'bad', title:'通信途絶',
-          desc:'隠れることを選んだリョウ。しかしロッカーは外から南京錠で封じられ、鳴り響く火災報知器の中、連絡は途絶えた。'} },
-        alarm_path:{ messages:[
-            {sender:'me', text:'非常ベル鳴らして！怯んだ隙に非常口から外に走れ！', delay:300, sound:'send'},
-            {sender:'them', text:'べ、ベル鳴らします…！', delay:1500, sound:'receive'},
-            {sender:'system', text:'けたたましい警報音が店内に響き渡る', delay:1200, sound:'alarm', effect:'shake-hard'},
-            {sender:'them', text:'今です、走ります！！', delay:1500, sound:'receive'},
-            {sender:'system', text:'非常口のドアが開く音。外の空気が流れ込む', delay:1800},
-          ],
-          choices:[
-            {label:'そのまま道路まで全力で走らせる', next:'end_survive'},
-            {label:'一度立ち止まって店内を振り返らせる', next:'lookback_bad'},
-          ]
-        },
-        end_survive:{ messages:[
-            {sender:'them', text:'道路に出ました…！人が、いる…！助かった…', delay:2200, sound:'receive'},
-            {sender:'them', text:'通報します。ありがとう、マジで', delay:1800, sound:'receive'},
-          ], autoNext:'end_survive_final', autoDelay:1800 },
-        end_survive_final:{ messages:[], ending:{type:'success', title:'救出成功',
-          desc:'警報ベルで相手が怯んだ隙に、リョウは非常口から一気に外へ。振り返らず道路まで走り抜き、無事に脱出した。'} },
-        lookback_bad:{ messages:[
-            {sender:'them', text:'……あれ、何もいない？振り返ってみます', delay:1800, sound:'receive'},
-            {sender:'me', text:'止まるな！！振り返らず走れ！！', delay:300, sound:'send'},
-            {sender:'system', text:'警報音の向こうから、何かがこちらに向かって走ってくる足音', delay:1800, effect:'shake-hard', sound:'noise'},
-            {sender:'them', text:'ひ', delay:1000, glitch:true, effect:'flash'},
-            {sender:'system', text:'それ以降、リョウからの返信はない', delay:2000},
-          ], autoNext:'end_lookback_bad', autoDelay:2200 },
-        end_lookback_bad:{ messages:[], ending:{type:'bad', title:'通信途絶',
-          desc:'脱出まであと一歩のところで足を止め、振り返ってしまったリョウ。警報の中、連絡は途絶えた。'} },
-      }
-    },
+    };
+  }
+
+  const TEMPLATE_DEFS = [
+    // 人コワ・サスペンス 残り7
+    ['ストーカー','horror','人コワ・サスペンス'],
+    ['隣人の壁ドン','horror','人コワ・サスペンス'],
+    ['闇バイト逃走','horror','人コワ・サスペンス'],
+    ['煽り運転','horror','人コワ・サスペンス'],
+    ['覗き魔','horror','人コワ・サスペンス'],
+    ['マッチングアプリ','horror','人コワ・サスペンス'],
+    ['深夜の侵入者','horror','人コワ・サスペンス'],
+    // オカルト・都市伝説 残り7
+    ['事故物件','occult','現代怪異・オカルト'],
+    ['廃村配信','occult','現代怪異・オカルト'],
+    ['こっくりさん','occult','現代怪異・オカルト'],
+    ['深夜の学校','occult','現代怪異・オカルト'],
+    ['樹海','occult','現代怪異・オカルト'],
+    ['呪いの動画','occult','現代怪異・オカルト'],
+    ['ドッペルゲンガー','occult','現代怪異・オカルト'],
+    // 密室・極限サバイバル 残り6
+    ['停止エレベーター','confine','極限密室・パニック'],
+    ['水没地下室','confine','極限密室・パニック'],
+    ['山小屋の吹雪','confine','極限密室・パニック'],
+    ['沈没船','confine','極限密室・パニック'],
+    ['火災ビル','confine','極限密室・パニック'],
+    ['冷凍倉庫','confine','極限密室・パニック'],
+    // サイコ・異常心理 7
+    ['監禁実験','psycho','サイコ・異常心理'],
+    ['強制鬼ごっこ','psycho','サイコ・異常心理'],
+    ['裏アカウントの罠','psycho','サイコ・異常心理'],
+    ['新興宗教','psycho','サイコ・異常心理'],
+    ['親友の裏切り','psycho','サイコ・異常心理'],
+    ['模倣犯','psycho','サイコ・異常心理'],
+    ['謎のアンケート','psycho','サイコ・異常心理'],
   ];
 
+  const templateScenarios = TEMPLATE_DEFS.map((def, i)=>{
+    const idx = i+4; // char04〜char30
+    const name = TEMPLATE_NAMES[i % TEMPLATE_NAMES.length];
+    return buildTemplateScenario(idx, name, def[0], def[1], def[2]);
+  });
+
+  const scenarios = [char01, char02, char03, ...templateScenarios];
   function getScenario(id){ return scenarios.find(s=>s.id===id); }
 
   // ============================================================
-  // 4. セーブデータ (localStorage)
+  // 5. セーブデータ
   // ============================================================
-  const SAVE_KEY = 'line-horror-save-v1';
+  const SAVE_KEY = 'line-horror-save-v2';
+  function defaultSave(){
+    return {
+      unlocked: scenarios.slice(0,3).map(s=>s.id),
+      everCleared: [], everBad: [], latestStatus: {},
+    };
+  }
   function loadSave(){
     try{
       const raw = localStorage.getItem(SAVE_KEY);
-      if(!raw) return {};
-      return JSON.parse(raw) || {};
-    }catch(e){ return {}; }
+      if(!raw) return defaultSave();
+      const parsed = JSON.parse(raw);
+      if(!parsed || !Array.isArray(parsed.unlocked)) return defaultSave();
+      return Object.assign(defaultSave(), parsed);
+    }catch(e){ return defaultSave(); }
   }
-  function saveSave(data){
-    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }catch(e){}
-  }
+  function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
   let save = loadSave();
-  function setStatus(id, status){
-    save[id] = status;
-    saveSave(save);
+
+  function isUnlocked(id){ return save.unlocked.indexOf(id) !== -1; }
+
+  function unlockNext(){
+    const next = scenarios.find(s => save.unlocked.indexOf(s.id) === -1);
+    if(next){ save.unlocked.push(next.id); return next; }
+    return null;
+  }
+
+  function recordEnding(id, type){
+    save.latestStatus[id] = type;
+    let unlockedChar = null;
+    if(type === 'success' && save.everCleared.indexOf(id) === -1){
+      save.everCleared.push(id);
+      unlockedChar = unlockNext();
+    }
+    if(type === 'bad' && save.everBad.indexOf(id) === -1){
+      save.everBad.push(id);
+    }
+    persist();
+    return unlockedChar;
   }
 
   // ============================================================
-  // 5. DOM参照
+  // 6. DOM参照
   // ============================================================
   const $ = (id)=>document.getElementById(id);
-  const listScreen = $('list-screen');
-  const chatScreen = $('chat-screen');
-  const threadList = $('thread-list');
-  const resultModal = $('result-modal');
-  const timelineEl = $('timeline');
-  const choicesEl = $('choices');
-  const chatAvatar = $('chat-avatar');
-  const chatName = $('chat-name');
-  const chatStatus = $('chat-status');
+  const listScreen = $('list-screen'), chatScreen = $('chat-screen');
+  const threadList = $('thread-list'), resultModal = $('result-modal');
+  const timelineEl = $('timeline'), choicesEl = $('choices');
+  const chatAvatar = $('chat-avatar'), chatName = $('chat-name'), chatStatus = $('chat-status');
   const callFlashHolder = $('call-flash-holder');
+  const toastHolder = $('toast-holder');
+  const fastToggle = $('fast-toggle');
 
   let currentScenario = null;
-  let currentTimer = null;
-  let genToken = 0; // シーン遷移の世代管理（古い非同期処理を無効化する）
+  let genToken = 0;
+
+  fastToggle.addEventListener('click', ()=>{
+    FAST = !FAST;
+    fastToggle.classList.toggle('on', FAST);
+  });
 
   // ------------------------------------------------------------
-  // トーク一覧描画
+  // トーク一覧
   // ------------------------------------------------------------
   function renderList(){
+    $('stat-cleared').textContent = save.everCleared.length + '/' + scenarios.length;
+    $('stat-bad').textContent = save.everBad.length + '/' + scenarios.length;
+
     threadList.innerHTML = '';
     scenarios.forEach(sc=>{
-      const status = save[sc.id] || 'unread';
+      const unlocked = isUnlocked(sc.id);
+      const status = save.latestStatus[sc.id];
       const btn = document.createElement('button');
       btn.className = 'thread';
+      if(!unlocked) btn.style.opacity = '.45';
       btn.innerHTML = `
-        <div class="thread-avatar" style="background:${sc.character.color}">
-          ${sc.character.emoji}
-          ${status==='unread' ? '<span class="unread-dot">1</span>' : ''}
+        <div class="thread-avatar ${unlocked?'':'locked'}" style="background:${sc.color}">
+          ${unlocked ? sc.emoji : '🔒'}
+          ${unlocked && !status ? '<span class="unread-dot">1</span>' : ''}
         </div>
         <div class="thread-body">
           <div class="thread-top">
-            <span class="thread-name">${sc.character.name}</span>
-            ${badgeHtml(status)}
+            <span class="thread-name">${unlocked ? sc.name : '???'}</span>
+            ${badgeHtml(unlocked, status)}
           </div>
-          <div class="thread-sub">${sc.title} ─ ${sc.description}</div>
+          <div class="thread-sub">${unlocked ? (sc.title+' ─ '+sc.genre) : 'まだ解放されていません'}</div>
         </div>
       `;
-      btn.addEventListener('click', ()=> openScenario(sc.id));
+      if(unlocked){
+        btn.addEventListener('click', ()=> openScenario(sc.id));
+      } else {
+        btn.style.cursor = 'default';
+      }
       threadList.appendChild(btn);
     });
   }
-  function badgeHtml(status){
+  function badgeHtml(unlocked, status){
+    if(!unlocked) return '<span class="badge locked">未解放</span>';
     if(status==='success') return '<span class="badge success">救出成功</span>';
     if(status==='bad') return '<span class="badge bad">音信不通</span>';
-    if(status==='progress') return '<span class="badge progress">進行中</span>';
     return '';
+  }
+
+  function showToast(text){
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `<span>📩</span><span>${text}</span>`;
+    toastHolder.appendChild(el);
+    requestAnimationFrame(()=> el.classList.add('show'));
+    setTimeout(()=>{
+      el.classList.remove('show');
+      setTimeout(()=> el.remove(), 400);
+    }, 2600);
   }
 
   $('reset-btn').addEventListener('click', ()=>{
     if(confirm('すべてのプレイ状況をリセットします。よろしいですか？')){
-      save = {};
-      saveSave(save);
+      save = defaultSave();
+      persist();
       renderList();
     }
   });
@@ -829,24 +883,17 @@
   // ------------------------------------------------------------
   // 画面遷移
   // ------------------------------------------------------------
-  function showScreen(el){
-    [listScreen, chatScreen].forEach(s=>s.classList.remove('active'));
-    el.classList.add('active');
-  }
+  function showScreen(el){ [listScreen, chatScreen].forEach(s=>s.classList.remove('active')); el.classList.add('active'); }
 
   function openScenario(id){
     SoundEngine.unlock();
     currentScenario = getScenario(id);
-    setStatus(id, 'progress');
     renderList();
     startChat();
     showScreen(chatScreen);
   }
 
-  $('back-btn').addEventListener('click', ()=>{
-    genToken++; // 進行中の非同期メッセージ処理を打ち切る
-    showScreen(listScreen);
-  });
+  $('back-btn').addEventListener('click', ()=>{ genToken++; showScreen(listScreen); });
 
   function handleCallTap(){
     SoundEngine.callEnd();
@@ -857,107 +904,135 @@
     setTimeout(()=> flash.remove(), 800);
   }
   $('call-btn').addEventListener('click', handleCallTap);
-  $('video-btn').addEventListener('click', handleCallTap);
 
   // ------------------------------------------------------------
   // チャット進行エンジン
   // ------------------------------------------------------------
-  function wait(ms){ return new Promise(r=>setTimeout(r, ms)); }
-
   function startChat(){
     timelineEl.innerHTML = '';
-    choicesEl.style.display = 'none';
+    choicesEl.classList.remove('show');
     choicesEl.innerHTML = '';
-    chatAvatar.style.background = currentScenario.character.color;
-    chatAvatar.textContent = currentScenario.character.emoji;
-    chatName.textContent = currentScenario.character.name;
+    chatAvatar.style.background = currentScenario.color;
+    chatAvatar.textContent = currentScenario.emoji;
+    chatName.textContent = currentScenario.name;
     setChatStatus('オンライン');
     runNode(currentScenario.startNodeId);
   }
 
-  function setChatStatus(text){
+  function setChatStatus(text, cls){
     chatStatus.textContent = text;
-    chatStatus.className = 'chat-header-status' +
-      (text==='入力中...' ? ' typing' : text==='オフライン' ? ' offline' : '');
+    chatStatus.className = 'chat-header-status' + (cls ? ' '+cls : '');
   }
 
-  function nowLabel(){
-    const d = new Date();
-    return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  }
+  function nowLabel(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
 
   function triggerScreenEffect(effect){
-    if(!effect || effect==='none') return;
     const cls = effect==='shake' ? 'fx-shake' : effect==='shake-hard' ? 'fx-shake-hard' : effect==='flash' ? 'fx-flash' : null;
     if(!cls) return;
     chatScreen.classList.remove('fx-shake','fx-shake-hard','fx-flash');
-    void chatScreen.offsetWidth; // reflow to restart animation
+    void chatScreen.offsetWidth;
     chatScreen.classList.add(cls);
     setTimeout(()=> chatScreen.classList.remove(cls), 650);
   }
 
-  function appendMessage(msg){
-    const time = nowLabel();
-    if(msg.sender === 'system'){
-      const row = document.createElement('div');
-      row.className = 'sys-row';
-      let inner = '<div class="sys-inner">';
-      if(msg.text) inner += `<span class="sys-text">${escapeHtml(msg.text)}</span>`;
-      if(msg.image){
-        inner += `<div class="eerie-frame">${eerieSvg(msg.image.kind)}</div>`;
-        if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`;
-      }
-      inner += '</div>';
-      row.innerHTML = inner;
-      timelineEl.appendChild(row);
-      return;
+  function escapeHtml(str){
+    return String(str||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function scrollToBottom(){ timelineEl.scrollTop = timelineEl.scrollHeight; }
+
+  function appendSystemMessage(msg){
+    const row = document.createElement('div'); row.className = 'sys-row';
+    let inner = '<div class="sys-inner">';
+    if(msg.text) inner += `<span class="sys-text">${escapeHtml(msg.text)}</span>`;
+    if(msg.image){
+      inner += `<div class="eerie-frame">${eerieSvg(msg.image.kind)}</div>`;
+      if(msg.image.caption) inner += `<div class="eerie-caption">${escapeHtml(msg.image.caption)}</div>`;
     }
-
-    const isMe = msg.sender === 'me';
-    const row = document.createElement('div');
-    row.className = 'msg-row ' + (isMe ? 'me' : 'them');
-
-    const avatarHtml = !isMe ? `<div class="msg-avatar" style="background:${currentScenario.character.color}">${currentScenario.character.emoji}</div>` : '';
-    const textHtml = msg.glitch ? `<span class="glitch">${escapeHtml(msg.text)}</span>` : escapeHtml(msg.text);
-    const metaHtml = `<div class="msg-meta">${isMe ? '<span>既読</span>' : ''}<span>${time}</span></div>`;
-
-    row.innerHTML = `
-      ${avatarHtml}
-      <div class="msg-wrap">
-        <div class="bubble">${textHtml}</div>
-        ${metaHtml}
-      </div>
-    `;
+    inner += '</div>';
+    row.innerHTML = inner;
     timelineEl.appendChild(row);
   }
 
-  function escapeHtml(str){
-    return String(str || '').replace(/[&<>"']/g, (c)=>({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c]));
+  function appendThemMessage(msg){
+    const time = nowLabel();
+    const row = document.createElement('div'); row.className = 'msg-row them';
+    const textHtml = msg.glitch ? `<span class="glitch">${escapeHtml(msg.text)}</span>` : escapeHtml(msg.text);
+    row.innerHTML = `
+      <div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
+      <div class="msg-wrap">
+        <div class="bubble">${textHtml}</div>
+        <div class="msg-meta"><span>${time}</span></div>
+      </div>`;
+    timelineEl.appendChild(row);
+  }
+
+  // 「me」メッセージ：未読→(1.5〜3秒)→既読 の時差を再現
+  async function appendMeMessage(text, myToken){
+    const time = nowLabel();
+    const row = document.createElement('div'); row.className = 'msg-row me';
+    const readId = 'read-' + Math.random().toString(36).slice(2);
+    row.innerHTML = `
+      <div class="msg-wrap">
+        <div class="bubble">${escapeHtml(text)}</div>
+        <div class="msg-meta"><span class="read-label" id="${readId}">未読</span><span>${time}</span></div>
+      </div>`;
+    timelineEl.appendChild(row);
+    scrollToBottom();
+
+    await wait(readDelay());
+    if(myToken !== genToken) return;
+    const label = document.getElementById(readId);
+    if(label){ label.textContent = '既読'; label.classList.add('is-read'); }
+    playSound('readChime');
   }
 
   function showTyping(show){
     let row = document.getElementById('typing-row');
     if(show){
       if(row) return;
-      row = document.createElement('div');
-      row.id = 'typing-row';
-      row.className = 'typing-row';
+      row = document.createElement('div'); row.id='typing-row'; row.className='typing-row';
       row.innerHTML = `
-        <div class="msg-avatar" style="background:${currentScenario.character.color}">${currentScenario.character.emoji}</div>
-        <div class="typing-bubble">
-          <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-        </div>`;
-      timelineEl.appendChild(row);
-      scrollToBottom();
-    } else if(row){
-      row.remove();
-    }
+        <div class="msg-avatar" style="background:${currentScenario.color}">${currentScenario.emoji}</div>
+        <div class="typing-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+      timelineEl.appendChild(row); scrollToBottom();
+    } else if(row){ row.remove(); }
   }
 
-  function scrollToBottom(){
-    timelineEl.scrollTop = timelineEl.scrollHeight;
+  // 潜伏・行動タイマー
+  function runActionTimer(seconds, label, myToken){
+    return new Promise(resolve=>{
+      const totalMs = FAST ? 1400 : seconds*1000;
+      const row = document.createElement('div'); row.className='action-timer-row';
+      row.innerHTML = `
+        <div class="action-timer">
+          <div class="at-label"><span class="dot"></span><span>${escapeHtml(label)}</span></div>
+          <div class="at-bar-track"><div class="at-bar-fill" id="at-fill" style="width:100%"></div></div>
+          <div class="at-count" id="at-count">${FAST? '' : seconds}</div>
+        </div>`;
+      timelineEl.appendChild(row); scrollToBottom();
+      setChatStatus(label, 'waiting');
+
+      const fill = row.querySelector('#at-fill');
+      const countEl = row.querySelector('#at-count');
+      const start = performance.now();
+
+      function tick(now){
+        if(myToken !== genToken) return;
+        const elapsed = now - start;
+        const remain = Math.max(0, totalMs - elapsed);
+        const pct = Math.max(0, 100 * remain / totalMs);
+        fill.style.width = pct + '%';
+        if(!FAST) countEl.textContent = Math.ceil(remain/1000) + '秒';
+        if(remain <= 0){
+          row.remove();
+          resolve();
+          return;
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
   }
 
   async function runNode(nodeId){
@@ -968,31 +1043,48 @@
     for(const msg of node.messages){
       if(myToken !== genToken) return;
 
+      if(msg.type === 'actionWait'){
+        await runActionTimer(msg.seconds, msg.label, myToken);
+        if(myToken !== genToken) return;
+        setChatStatus('オンライン');
+        await wait(300);
+        playSound('receive');
+        continue;
+      }
+
       if(msg.sender === 'them'){
-        setChatStatus('入力中...');
+        setChatStatus('入力中...', 'typing');
         showTyping(true);
-        await wait(msg.delay || (1000 + Math.random()*1500));
+        await wait(msg.delay || typingDelay());
         if(myToken !== genToken) return;
         showTyping(false);
         setChatStatus('オンライン');
-      } else if(msg.delay){
-        await wait(msg.delay);
+        appendThemMessage(msg);
+        playSound(msg.sound || 'receive');
+        if(msg.effect) triggerScreenEffect(msg.effect);
+        scrollToBottom();
+        await wait(200);
+      } else if(msg.sender === 'system'){
+        if(msg.delay) await wait(msg.delay);
+        if(myToken !== genToken) return;
+        appendSystemMessage(msg);
+        if(msg.sound) playSound(msg.sound);
+        if(msg.effect) triggerScreenEffect(msg.effect);
+        scrollToBottom();
+        await wait(200);
+      } else if(msg.sender === 'me'){
+        // シナリオ側で明示された「自分の発言」（アドバイス等）
+        await appendMeMessage(msg.text, myToken);
         if(myToken !== genToken) return;
       }
-
-      appendMessage(msg);
-      playSound(msg.sound);
-      if(msg.effect) triggerScreenEffect(msg.effect);
-      scrollToBottom();
-      await wait(250);
       if(myToken !== genToken) return;
     }
 
     if(myToken !== genToken) return;
 
     if(node.ending){
-      setChatStatus('オフライン');
-      await wait(600);
+      setChatStatus('オフライン', 'offline');
+      await wait(500);
       if(myToken !== genToken) return;
       finishScenario(node.ending);
       return;
@@ -1004,7 +1096,7 @@
     }
 
     if(node.autoNext){
-      await wait(node.autoDelay || 1200);
+      await wait(node.autoDelay || 1000);
       if(myToken !== genToken) return;
       runNode(node.autoNext);
     }
@@ -1016,24 +1108,25 @@
       const btn = document.createElement('button');
       btn.className = 'choice-btn';
       btn.textContent = choice.label;
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click', async ()=>{
+        const myToken = genToken;
         SoundEngine.send();
-        appendMessage({sender:'me', text:choice.label});
-        scrollToBottom();
-        choicesEl.style.display = 'none';
-        setTimeout(()=> runNode(choice.next), 400);
+        choicesEl.classList.remove('show');
+        await appendMeMessage(choice.label, myToken);
+        if(myToken !== genToken) return;
+        setTimeout(()=> runNode(choice.next), 250);
       });
       choicesEl.appendChild(btn);
     });
-    choicesEl.style.display = 'flex';
+    requestAnimationFrame(()=> choicesEl.classList.add('show'));
     scrollToBottom();
   }
 
   // ------------------------------------------------------------
-  // リザルトモーダル
+  // リザルト
   // ------------------------------------------------------------
   function finishScenario(ending){
-    setStatus(currentScenario.id, ending.type);
+    const unlockedChar = recordEnding(currentScenario.id, ending.type);
     renderList();
 
     const card = $('result-card');
@@ -1042,18 +1135,16 @@
     $('result-kicker').textContent = ending.type==='success' ? '救出成功' : 'BAD END';
     $('result-title').textContent = ending.title;
     $('result-desc').textContent = ending.desc;
+    $('result-unlock').textContent = unlockedChar ? `新着SOS：${unlockedChar.name}が解放されました` : '';
     resultModal.classList.add('show');
+
+    if(unlockedChar){
+      setTimeout(()=> showToast(unlockedChar.name+'から新着SOSが届きました'), 500);
+    }
   }
 
-  $('retry-btn').addEventListener('click', ()=>{
-    resultModal.classList.remove('show');
-    startChat();
-  });
-  $('backlist-btn').addEventListener('click', ()=>{
-    resultModal.classList.remove('show');
-    genToken++;
-    showScreen(listScreen);
-  });
+  $('retry-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); startChat(); });
+  $('backlist-btn').addEventListener('click', ()=>{ resultModal.classList.remove('show'); genToken++; showScreen(listScreen); });
 
   // ------------------------------------------------------------
   // 初期化
